@@ -3,7 +3,7 @@
 The [Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension in Visual Studio Code is a similar tool to Postman that you can use to interact with Azure API for FHIR. 
 
 You can install the extension in Visual Studio Code easily. Select the Extensions icon on the left side and search "Rest Client". Click the Rest Client entry from the search results and press the Install button.
-![image.png](docs/images/rest-client/rest-client-extension.png)
+![image.png](/images/rest-client/rest-client-extension.png)
 
 After installing the Rest Client extension, you are ready to make restful API calls. You can find more details on how to use the tool in the [installation file](https://marketplace.visualstudio.com/items?itemName=humao.rest-client). 
 
@@ -11,7 +11,7 @@ After installing the Rest Client extension, you are ready to make restful API ca
 
 Create a new file in Visual Studio Code. Enter a Get request command line in the file, and save it as "test.http". The file suffix ".http" automatically activates the Rest Client environment. Click on "Send Request" which is supplied by the tool to get the metadata. 
 
-<img src="docs/images/rest-client/rest-client-config.png">
+<img src="/images/rest-client/rest-client-config.png">
 
 Before making restful API calls to the FHIR server (other than getting the metadata), you must complete the following prerequisite.
 
