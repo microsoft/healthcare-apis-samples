@@ -1,21 +1,23 @@
-# Work With Rest Client Extension in Visual Studio
+# How to Use Rest Client Extension in Visual Studio Code
 
-The [Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension in Visual Studio Code is a similar tool to Postman that you can use to interact with Azure API for FHIR. 
+The [Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension in Visual Studio Code is a similar tool to Postman that you can use to interact with Azure API for FHIR.
 
 You can install the extension in Visual Studio Code easily. Select the Extensions icon on the left side and search "Rest Client". Click the Rest Client entry from the search results and press the Install button.
-![image.png](images/rest-client/rest-client-extension.png)
 
-After installing the Rest Client extension, you are ready to make restful API calls. You can find more details on how to use the tool in the [installation file](https://marketplace.visualstudio.com/items?itemName=humao.rest-client). 
+![image.png](images/restclient/install.png)
+
+After installing the Rest Client extension, you are ready to make restful API calls. You can find more details on how to use the tool in the [installation file](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
 
 **Create an ".http" File and Define Variables**
 
 Create a new file in Visual Studio Code. Enter a Get request command line in the file, and save it as "test.http". The file suffix ".http" automatically activates the Rest Client environment. Click on "Send Request" which is supplied by the tool to get the metadata. 
 
-<img src="images/rest-client/rest-client-config.png">
+![image.png](images/restclient/sendrequest.png)
 
 Before making restful API calls to the FHIR server (other than getting the metadata), you must complete the following prerequisite.
 
-- Complete [application registration](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/fhir-app-registration). Make a note of the Azure tenant id, client id, client secret and the service url.
+>[!Important] 
+  Complete [application registration](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/fhir-app-registration). Make a note of the Azure tenant id, client id, client secret and the service url.
 
 You can now get an access token issued by Azure Active Directory for Azure API for FHIR. While you can use values such as client id directly in the restful API calls, it is a good practice that you define a few variables for these values and use the variables instead. 
 
@@ -23,10 +25,10 @@ Copy and paste the code to the file. The line with "###" is a comment.
 
 ```
 ### REST Client
-@fhirurl = https://xxx.azurehealthcareapis.com
-@clientid=5fa1....
-@clientsecret=....
-@tenantid=d487...
+@fhirurl =https://xxx.azurehealthcareapis.com
+@clientid =5fa1....
+@clientsecret =....
+@tenantid =....
 ```
 
 **Get AAD Access Token**
@@ -54,7 +56,7 @@ grant_type=client_credentials
 
 Click on "Send Request". You will see an http response that contains the access token if successful. 
 
-![image.png](/.attachments/image-0256cf21-b3b1-42d4-8d35-468e4a3bbd9b.png)
+![image.png](images/restclient/config.png)
 
 **Get FHIR Data**
 
@@ -66,7 +68,7 @@ Get {{fhirurl}}/Patient/7165139....
 Authorization: Bearer {{token}}
 ```
 
-![image.png](/.attachments/image-cfcabc67-9da9-4146-a163-8bb9148aa019.png)
+![image.png](images/restclient/getpatient.png)
 
 **Troubleshooting**
 

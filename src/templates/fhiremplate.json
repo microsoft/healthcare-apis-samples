@@ -1,0 +1,110 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string"
+        },
+        "serviceName": {
+            "type": "string"
+        },
+        "r4Authority": {
+            "type": "string"
+        },
+        "audience": {
+            "type": "string"
+        },
+        "r4AccessPolicies": {
+            "type": "array",
+            "defaultValue": []
+        },
+        "smartProxyEnabled": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "region": {
+            "type": "string"
+        },
+        "environmentName": {
+            "type": "string",
+            "defaultValue": "Anything"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "provisionStorageAccount" : {
+            "type" : "bool"
+        }
+    },
+    "variables": {
+        "createManagedIdentity" : "[or(parameters('provisionStorageAccount'), parameters('provisionRegistry'))]",
+        "managedIdentityType" : {
+            "type" : "systemAssigned"
+        },
+        "storageBlobDataContributerRoleId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.HealthcareApis/workspaces",
+            "name": "[parameters('workspaceName')]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "properties": {}
+        },
+       {          
+            "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+            "kind": "fhir-R4",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('serviceName'))]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
+            ],
+            "tags": {
+                "environmentName": "[parameters('environmentName')]"
+            },
+            "properties": {
+                "accessPolicies": "[parameters('r4AccessPolicies')]",
+                "authenticationConfiguration": {
+                    "authority": "[parameters('r4Authority')]",
+                    "audience": "[parameters('audience')]",
+                    "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
+                },
+                "corsConfiguration": {
+                    "allowCredentials": false,
+                    "headers": ["*"],
+                    "maxAge": 1440,
+                    "methods": ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"],
+                    "origins": ["https://localhost:6001"]
+                },
+                "exportConfiguration": {
+                    "storageAccountName": "[parameters('storageAccountName')]"
+                }
+            },
+            "identity": "[if(variables('createManagedIdentity'), variables('managedIdentityType'), json('null'))]"
+        },
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "supportsHttpsTrafficOnly": "true"
+            },
+            "condition": "[parameters('provisionStorageAccount')]",
+            "dependsOn": [
+                "[parameters('serviceName')]"
+            ],
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "tags": {
+                "environmentName": "[parameters('environmentName')]",
+                "test-account-rg": "true"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

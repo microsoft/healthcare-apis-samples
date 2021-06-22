@@ -1,0 +1,93 @@
+### REST Client - an alternative to Postman
+@subscriptionid=xxx
+@tenantid=xxx
+@clientid=xxx
+@clientsecret=xxx
+@resourcegroupname=xxx
+@workspacename=xxx
+@fhirname=xxx
+@location=xxx e.g. southcentralus
+@authority=https://login.microsoftonline.com/<replace with tenant id>
+@resource=https://management.azure.com/
+@apiversion=2020-11-01-preview
+#@apiversion=2021-03-30-preview
+
+### Get an access token
+# @name getToken
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{resource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
+
+### create resource group
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{esourcegroup}?api-version=2021-04-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "location": "{{location}}"
+}
+
+### create workspace
+Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{esourcegroup}/providers/Microsoft.HealthcareApis/workspaces/{{orkspace}?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "{{orkspace}",
+    "type": "Microsoft.HealthcareApis/workspaces",
+    "location": "{{location}}",
+    "properties": {
+    }
+}
+
+### create FHIR instance
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{esourcegroup}/providers/Microsoft.HealthcareApis/workspaces/{{orkspace}/fhirservices/{{fhirname}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{fhirname}}",
+  "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+  "location": "{{location}}",
+  "kind": "fhir-R4",
+  "properties": {
+    "accessPolicies": [],
+    "authenticationConfiguration": {
+      "authority": "{{authority}}",
+      "audience": "",
+      "smartProxyEnabled": false
+    },
+    "corsConfiguration": {
+      "origins": [
+        "*"
+      ],
+      "headers": [
+        "*"
+      ],
+      "methods": [
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT"
+      ],
+      "maxAge": 1440,
+      "allowCredentials": false
+    },
+    "exportConfiguration": {
+      "storageAccountName": null
+    }
+  }
+}
+
