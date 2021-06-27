@@ -1,0 +1,289 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appNameImporter": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app."
+            }
+        },
+        "fhirServiceUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "fhir service url, api or oss server"
+            }
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS"
+            ],
+            "metadata": {
+                "description": "Storage Account type"
+            }
+        },
+                "containerNameImport": {
+            "type": "string",
+            "defaultValue": "fhirimport",
+            "metadata": {
+                "description": "The name of the storage container for source data."
+            }
+        },
+                "containerNameRejected": {
+            "type": "string",
+            "defaultValue": "fhirrejected",
+            "metadata": {
+                "description": "The name of the storage container for data rejected."
+            }
+        },
+        "repositoryUrl": {
+            "type": "string",
+            "defaultValue": "https://github.com/Microsoft/fhir-server-samples",
+            "metadata": {
+                "description": "Respository to pull source code from. If blank, source code will not be deployed."
+            }
+        },
+        "repositoryBranch": {
+            "type": "string",
+            "defaultValue": "master",
+            "metadata": {
+                "description": "Source code branch to deploy."
+            }
+        },
+        "repositoryProjectPath": {
+            "type": "string",
+            "defaultValue": "src/FhirImporter",
+            "metadata": {
+                "description": "Path within source code repository for FHIR Dashboard application"
+            }
+        },
+        "solutionType": {
+            "type": "string",
+            "defaultValue": "FhirServerSamples",
+            "metadata": {
+                "description": "The type of the solution"
+            }
+        },
+        "aadAuthority": {
+            "type": "string",
+            "defaultValue": "https://login.microsoftonline.com",
+            "metadata": {
+                "description": "OAuth Authority"
+            }
+        },
+        "aadServiceClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "AAD service client application id"
+            }
+        },
+        "aadServiceClientSecret": {
+            "type": "string",
+            "metadata": {
+                "description": "AAD service client secret"
+            }
+        }
+        },
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "functionAppName": "[parameters('appNameImporter')]",
+        "hostingPlanName": "[parameters('appNameImporter')]",
+        "applicationInsightsName": "[parameters('appNameImporter')]",
+        "storageAccountName": "[replace(concat(toLower(substring(parameters('appNameImporter'), 0, min(length(parameters('appNameImporter')), 22))), 'sa'),'-','')]",
+        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+},
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "tags": {
+                "FhirServerSolution": "[parameters('solutionType')]"
+            },
+            "apiVersion": "2019-06-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "properties": {
+                "accessTier": "Hot"
+                            },
+            "resources": [
+                {
+                  "type": "blobServices/containers",
+                  "apiVersion": "2019-06-01",
+                  "name": "[concat('default/', parameters('containerNameImport'))]",
+                  "dependsOn": [
+                    "[variables('storageAccountName')]"
+                  ],
+                  "properties": {
+                    "publicAccess": "None"
+                  }
+                },
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-06-01",
+                    "name": "[concat('default/', parameters('containerNameRejected'))]",
+                    "dependsOn": [
+                      "[variables('storageAccountName')]"
+                    ],
+                    "properties": {
+                      "publicAccess": "None"
+                    }
+                  }                  
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[variables('hostingPlanName')]",
+            "tags": {
+                "FhirServerSolution": "[parameters('solutionType')]"
+                    },
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('hostingPlanName')]",
+                "computeMode": "Dynamic"
+                            },
+                "sku":{  
+                    "name":"Y1",
+                    "tier":"Dynamic",
+                    "size":"Y1",
+                    "family":"Y",
+                    "capacity":0
+                    }
+        },
+        {
+            "apiVersion": "2018-11-01",
+            "type": "Microsoft.Web/sites",
+            "tags": {
+                "FhirServerSolution": "[parameters('solutionType')]"
+            },
+            "name": "[variables('functionAppName')]",  
+            "location": "[variables('location')]",
+            "kind": "functionapp",
+            "identity": {
+                "type": "SystemAssigned"
+                        },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[toLower(variables('functionAppName'))]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "~8.5"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPINSIGHTS_PORTALINFO",
+                            "value": "ASP.NETCORE"
+                        },
+                        {
+                            "name": "APPINSIGHTS_PROFILERFEATURE_VERSION",
+                            "value": "1.0.0"
+                        },
+                        {
+                            "name": "APPINSIGHTS_SNAPSHOTFEATURE_VERSION",
+                            "value": "1.0.0"
+                        },
+                                                {
+                            "name": "ClientId",
+                            "value": "[parameters('aadServiceClientId')]"
+                        },
+                        {
+                            "name": "ClientSecret",
+                            "value": "[parameters('aadServiceClientSecret')]"
+                        },
+                        {
+                            "name": "Audience",
+                            "value": "[parameters('fhirServiceUrl')]"
+                        },
+                        {
+                            "name": "Authority",
+                            "value": "[concat(parameters('aadAuthority'),'/', subscription().tenantId)]"
+                        },
+                        {
+                            "name": "PROJECT",
+                            "value": "[parameters('repositoryProjectPath')]"
+                        },
+                        {
+                            "name": "WEBSITE_MAX_DYNAMIC_APPLICATION_SCALE_OUT",
+                            "value": "1"
+                        },
+                        {
+                            "name": "FhirServerUrl",
+                            "value": "[parameters('fhirServiceUrl')]"
+                        },
+                        {
+                            "name": "MaxDegreeOfParallelism",
+                            "value": "16"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2018-11-01",
+                    "name": "web",
+                    "type": "sourcecontrols",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+                    ],
+                    "properties": {
+                        "RepoUrl": "[parameters('repositoryUrl')]",
+                        "branch": "[parameters('repositoryBranch')]",
+                        "IsManualIntegration": true
+                    }
+                }
+            ]
+        },
+        {   
+        "apiVersion": "2018-05-01-preview",
+        "name": "[variables('applicationInsightsName')]",
+        "type": "microsoft.insights/components",
+        "location": "[variables('location')]",
+        "kind": "web",
+        "tags": {
+            "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"},
+        "properties": {
+            "ApplicationId": "[variables('applicationInsightsName')]",
+                "Application_Type": "web",
+                "RetentionInDays": 90,
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+                }
+        }
+    ],
+    "outputs": {}
+}

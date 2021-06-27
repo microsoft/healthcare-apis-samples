@@ -1,14 +1,14 @@
 ### REST Client - an alternative to Postman
-@subscriptionid=xxx
-@tenantid=xxx
-@clientid=xxx
-@clientsecret=xxx
-@resourcegroupname=xxx
-@workspacename=xxx
-@fhirname=xxx
-@location=xxx e.g. southcentralus
-@authority=https://login.microsoftonline.com/<replace with tenant id>
+@resourcegroupname=rg-himss21
+@workspacename=himss21
+@fhirname=fhir21
+@location=southcentralus
+@subscriptionid=cc148bf2-42fb-4913-a3fb-2f284a69eb89
+@tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
+@clientid=b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
+@clientsecret=1~uOXvbD-9cXsQCc~7N3~Djcd1l77uu5d7
 @resource=https://management.azure.com/
+@authorityurl=https://login.microsoftonline.com
 @apiversion=2020-11-01-preview
 #@apiversion=2021-03-30-preview
 
@@ -26,7 +26,7 @@ grant_type=client_credentials
 @token = {{getToken.response.body.access_token}}
 
 ### create resource group
-PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{esourcegroup}?api-version=2021-04-01
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{resourcegroupname}}?api-version=2021-04-01
 Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
@@ -36,13 +36,13 @@ Accept: application/json
 }
 
 ### create workspace
-Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{esourcegroup}/providers/Microsoft.HealthcareApis/workspaces/{{orkspace}?api-version={{apiversion}}
+Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}?api-version={{apiversion}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
 
 {
-    "name": "{{orkspace}",
+    "name": "{{workspacename}}",
     "type": "Microsoft.HealthcareApis/workspaces",
     "location": "{{location}}",
     "properties": {
@@ -50,7 +50,7 @@ Accept: application/json
 }
 
 ### create FHIR instance
-PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{esourcegroup}/providers/Microsoft.HealthcareApis/workspaces/{{orkspace}/fhirservices/{{fhirname}}?api-version={{apiversion}}  
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirname}}?api-version={{apiversion}}  
 Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
@@ -63,7 +63,7 @@ Accept: application/json
   "properties": {
     "accessPolicies": [],
     "authenticationConfiguration": {
-      "authority": "{{authority}}",
+      "authority": "{{authorityurl}}/{{tenantid}}",
       "audience": "",
       "smartProxyEnabled": false
     },

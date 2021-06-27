@@ -2,42 +2,45 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "authorityurl": {
+            "type": "string",
+            "defaultValue": "https://login.microsoftonline.com"
+        },
+        "tagName": {
+            "type": "string",
+            "defaultValue": "My Deployment"
+        },
+        "location": {
+            "type": "string"
+        },
         "workspaceName": {
             "type": "string"
         },
         "serviceName": {
             "type": "string"
         },
-        "r4Authority": {
+        "tenantid": {
             "type": "string"
         },
-        "audience": {
+        "storageAccountName": {
             "type": "string"
         },
-        "r4AccessPolicies": {
+        "storageAccountConfirm" : {
+            "type" : "bool",
+            "defaultValue": true
+        },
+                "AccessPolicies": {
             "type": "array",
             "defaultValue": []
         },
         "smartProxyEnabled": {
             "type": "bool",
             "defaultValue": false
-        },
-        "region": {
-            "type": "string"
-        },
-        "environmentName": {
-            "type": "string",
-            "defaultValue": "Anything"
-        },
-        "storageAccountName": {
-            "type": "string"
-        },
-        "provisionStorageAccount" : {
-            "type" : "bool"
         }
     },
-    "variables": {
-        "createManagedIdentity" : "[or(parameters('provisionStorageAccount'), parameters('provisionRegistry'))]",
+    "variables": { 
+        "authority" : "[Concat(parameters('authorityurl'), '/', parameters('tenantid'))]",
+        "createManagedIdentity" : "[parameters('storageAccountConfirm')]",
         "managedIdentityType" : {
             "type" : "systemAssigned"
         },
@@ -48,7 +51,7 @@
             "type": "Microsoft.HealthcareApis/workspaces",
             "name": "[parameters('workspaceName')]",
             "apiVersion": "2020-11-01-preview",
-            "location": "[parameters('region')]",
+            "location": "[parameters('location')]",
             "properties": {}
         },
        {          
@@ -56,18 +59,18 @@
             "kind": "fhir-R4",
             "name": "[concat(parameters('workspaceName'), '/', parameters('serviceName'))]",
             "apiVersion": "2020-11-01-preview",
-            "location": "[parameters('region')]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
             ],
             "tags": {
-                "environmentName": "[parameters('environmentName')]"
+                "environmentName": "[parameters('tagName')]"
             },
             "properties": {
-                "accessPolicies": "[parameters('r4AccessPolicies')]",
+                "accessPolicies": "[parameters('AccessPolicies')]",
                 "authenticationConfiguration": {
-                    "authority": "[parameters('r4Authority')]",
-                    "audience": "[parameters('audience')]",
+                    "authority": "[variables('Authority')]",
+                    "audience": "[concat(parameters('workspaceName'), '-', parameters('serviceName'), 'azurehealthcareapis.com')]",
                     "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
                 },
                 "corsConfiguration": {
@@ -91,7 +94,7 @@
             "properties": {
                 "supportsHttpsTrafficOnly": "true"
             },
-            "condition": "[parameters('provisionStorageAccount')]",
+            "condition": "[parameters('storageAccountConfirm')]",
             "dependsOn": [
                 "[parameters('serviceName')]"
             ],
@@ -100,7 +103,7 @@
             },
             "kind": "Storage",
             "tags": {
-                "environmentName": "[parameters('environmentName')]",
+                "environmentName": "[parameters('tagName')]",
                 "test-account-rg": "true"
             }
         }
