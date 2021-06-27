@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Newtonsoft.Json.Linq;
@@ -16,11 +17,50 @@ using System.Threading;
 using System.Collections;
 using Microsoft.Extensions.Configuration;
 using Azure;
+using System.Threading.Tasks;
+using System.Text;
+using System.Text.Json;
 
 namespace HealthcareAPIsSamples
 {
     class Program
     {
+        //Get FHIR data source settings
+        static string _bundleStorageConnection;
+        static string _bundleContainer;
+        static string _bundleContainerconvert;  // urn:uuid converted to resource type
+
+        //Get FHIR settings
+        static bool _fhirserversecurity;
+        static string _fhirStorageConnection;
+        static string _fhirLogsContainer;
+        static string _fhirExportContainer;
+        static string _fhirFileFilter;
+        static int _fhirFileCountStart;
+        static int _fhirMaxRetry;
+
+        static string _fhiraudience;
+        static string _fhirtenantId;
+        static string _fhirclientId;
+        static string _fhirclientSecret;
+        static string _fhirlogin;
+        static string _authority;
+
+        static string _accesstoken = null;
+        static string _requestUrl = null;
+        static HttpClient _client = new HttpClient();
+        static HttpRequestMessage _request;
+        static HttpResponseMessage _response;
+
+        static string _exportResponseLocation;
+        static string _logStorage = null;
+        static string _msg = null;
+        static string _content = null;
+        static string _fhirLoaderResponse = "";
+
+        static int _jsonfilecount = 1;
+        static int _retry = 1;
+
         static async System.Threading.Tasks.Task Main(string[] args)
         {
             var config = new ConfigurationBuilder()
@@ -29,44 +69,25 @@ namespace HealthcareAPIsSamples
             .Build();
 
             //Get FHIR data source settings
-            string _bundleStorageConnection = config["bundlestorageconnection"];
-            string _bundleContainer = config["bundlecontainer"];
-            string _bundleContainerconverted = config["bundlecontainerconverted"];  // urn:uuid converted to resource type
+            _bundleStorageConnection = config["bundlestorageconnection"];
+            _bundleContainer = config["bundlecontainer"];
+            _bundleContainerconvert = config["bundlecontainerconvert"];  // urn:uuid converted to resource type
 
             //Get FHIR settings
-            bool _fhirserversecurity = bool.Parse(config["fhirserversecurity"]);
-            string _fhirStorageConnection = config["fhirstorageconnection"];
-            string _fhirLogsContainer = config["fhirlogs"];
-            string _fhirExportContainer = config["fhirexport"];
-            string _fhirFileFilter = config["filefilter"];
-            int _fhirFileCountStart = int.Parse(config["filecountstart"]);
-            int _fhirMaxRetry = int.Parse(config["maxretry"]);
+            _fhirserversecurity = bool.Parse(config["fhirserversecurity"]);
+            _fhirStorageConnection = config["fhirstorageconnection"];
+            _fhirLogsContainer = config["fhirlogs"];
+            _fhirExportContainer = config["fhirexport"];
+            _fhirFileFilter = config["filefilter"];
+            _fhirFileCountStart = int.Parse(config["filecountstart"]);
+            _fhirMaxRetry = int.Parse(config["maxretry"]);
 
-            string _fhiraudience = config["fhiraudience"];
-            string _fhirtenantId = config["fhirtenantid"];
-            string _fhirclientId = config["fhirclientid"];
-            string _fhirclientSecret = config["fhirclientsecret"];
-            string _fhirlogin = config["fhirloginauthority"];
-            //string _authority = "https://login.microsoftonline.com" + "/" + _fhirtenantId;
-            string _authority = _fhirlogin + "/" + _fhirtenantId;
-
-            string _accesstoken = null;
-            string _requestUrl = null;
-            HttpClient _client = new HttpClient();
-            HttpRequestMessage _request;
-            HttpResponseMessage _response;
-
-            string _exportResponseLocation;
-            string _logStorage = null;
-            string _msg = null;
-            string _content = null;
-            string _fhirLoaderResponse = "";
-
-            int _jsonfilecount = 1;
-            int _logfilecount = 1;
-            int _logfilesize = 5000;
-            int _retry = 1;
-
+            _fhiraudience = config["fhiraudience"];
+            _fhirtenantId = config["fhirtenantid"];
+            _fhirclientId = config["fhirclientid"];
+            _fhirclientSecret = config["fhirclientsecret"];
+            _fhirlogin = config["fhirloginauthority"];
+            _authority = _fhirlogin + "/" + _fhirtenantId;
 
             var menuOption = "";
             bool menuOptionValid = false;
@@ -75,8 +96,8 @@ namespace HealthcareAPIsSamples
             menuItems += "**********************************************************\n\n";
             menuItems += "Update appsettings.json before running the tool.\n";
             menuItems += "0. Convert Synthea FHIR Bundles in Azure Storage\n";
-            menuItems += "1. Load FHIR Bundles (json files)\n";
-            menuItems += "2. Load FHIR Bundles (ndjson files)\n";
+            menuItems += "1. Load FHIR Bundles (json files after urn:uuid conversion)\n";
+            menuItems += "2. Load FHIR Bundles (ndjson files after urn:uuid conversion)\n";
             menuItems += "3. Export FHIR Resources to Azure Storage\n";
             menuItems += "4. Delete FHIR Resources based on $export NDJson files\n";
             menuItems += "q. Exit the program\n";
@@ -85,19 +106,19 @@ namespace HealthcareAPIsSamples
                 switch (menuOption)
                 {
                     case "0":
-                        ConvertSyntheaData();
+                        await ProcessSyntheaData(true);
                         break;
                     case "1":
-                        LoadJsonData();
+                        await ProcessSyntheaData(false);
                         break;
                     case "2":
-                        LoadNDJsonData();
+                        //LoadNDJsonData();
                         break;
                     case "3":
-                        ExportFHIRData();
+                        //ExportFHIRData();
                         break;
                     case "4":
-                        DeleteFHIRData();
+                        //DeleteFHIRData();
                         break;
                     case "q":
                         return;
@@ -109,10 +130,6 @@ namespace HealthcareAPIsSamples
 
             try
             {
-
-
-
-
                 if (menuOption == "2")
                 {
                     //_fhirExportContainer
@@ -285,7 +302,7 @@ namespace HealthcareAPIsSamples
                     //    throw new Exception("FHIRDataLoader: FHIR export storage location not found.");
 
                     //Use Dictionary to store resource id and resource type 
-                    Dictionary<string, FHIRResourceHelper.ResourceRefPair> _dict = new Dictionary<string, FHIRResourceHelper.ResourceRefPair>();
+                    Dictionary<string, FHIRDLHelper.ResourceRefPair> _dict = new Dictionary<string, FHIRDLHelper.ResourceRefPair>();
 
                     //Console.WriteLine("FHIRDataLoader: Resources in container " + _fhirExportContainer + " are to be deleted.");
                     //Console.WriteLine("FHIRDataLoader: Deleting FHIR resources started");
@@ -338,7 +355,7 @@ namespace HealthcareAPIsSamples
                             string _id = (string)_objLineContent["id"];
 
                             //save id and resource type to dictionary for each ndjson file
-                            _dict.TryAdd(_id, new FHIRResourceHelper.ResourceRefPair
+                            _dict.TryAdd(_id, new FHIRDLHelper.ResourceRefPair
                             {
                                 Id = _id,
                                 ResourceType = _rt
@@ -347,7 +364,7 @@ namespace HealthcareAPIsSamples
                         }
 
                         //Delete all resources for each ndjson file
-                        _msg = await FHIRResourceHelper.DeleteFHIRResource(_fhiraudience, _accesstoken, _dict);
+                        //_msg = await FHIRDLHelper.DeleteFHIRResource(_fhiraudience, _accesstoken, _dict);
                         _logStorage += _msg + "\n";
 
                         ////archive and delete ndjson files
@@ -399,161 +416,129 @@ namespace HealthcareAPIsSamples
             }
         }
 
-        static private void ConvertSyntheaData()
-        {
-
-            BlobServiceClient blobServiceClient = new BlobServiceClient(_bundleStorageConnection);
-                BlobContainerClient blobContainerClient;
-                blobContainerClient = blobServiceClient.GetBlobContainerClient(_bundleContainer);
-                if (!blobContainerClient.Exists())
-                {
-                    Console.WriteLine($"Bundle storage container not found.");
-                    return;
-                }
-
-                //BlobContainerClient destContainerClient = blobServiceClient.GetBlobContainerClient(_fhirBundlesProcessedContainer);
-                //if (!destContainerClient.Exists())
-                //    destContainerClient = blobServiceClient.CreateBlobContainer(_fhirBundlesProcessedContainer);
-
-                _msg += $"Loading started: {DateTime.Now}\n";
-                // List all blobs in the container
-
-                Console.WriteLine($"\nUploading FHIR data to {_fhiraudience}. ");
-                Console.Write($"Uploading starting at file #{_fhirFileCountStart}. ");
-                if (!string.IsNullOrEmpty(_fhirFileFilter))
-                    Console.Write($"Filtering files with {_fhirFileFilter}. ");
-
-                Console.WriteLine($"Please wait...\n");
-
-                await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
-                {
-                    //Only process filtered json files
-                    if (!blobItem.Name.Contains(_fhirFileFilter))
-                        continue;
-
-                    //Resume loading manually
-                    if (_jsonfilecount < _fhirFileCountStart)
-                    {
-                        //Console.WriteLine($"Skipping file #{_jsonfilecount} {blobItem.Name}");
-                        _jsonfilecount++;
-                        continue;
-                    }
-
-                    _msg += $"Loading {blobItem.Name} \n";
-                    Console.WriteLine($"Uploading file #{_jsonfilecount} {blobItem.Name}");
-
-                    //if (AADHelper.isTokenExpired(_accesstoken))
-                    //{
-                    //    _accesstoken = await AADHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
-                    //    Console.WriteLine($"Renew access token ...");
-                    //}
-
-                    BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
-                    BlobDownloadInfo download = await blobClient.DownloadAsync();
-                    var streamReader = new StreamReader(download.Content);
-                    _content = await streamReader.ReadToEndAsync();
-
-                    _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, blobItem.Name, _content);
-
-                    _retry = 1;
-
-                    while (_fhirLoaderResponse != "Completed")
-                    {
-
-                        if (_retry > _fhirMaxRetry)
-                        {
-                            Console.WriteLine($"Retry has exceeded the max limit. Exit now.");
-                            break;
-                        }
-
-                        Console.WriteLine($"*******************  Retry due to error *******************");
-
-                        if (_fhirserversecurity)
-                        {
-                            if (FHIRDLHelper.isTokenExpired(_accesstoken))
-                                _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
-
-                            Console.WriteLine($"Get a new access token");
-
-                        }
-
-                        _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, blobItem.Name, _content);
-
-                        _retry++;
-                    }
-
-                    if (_jsonfilecount % _logfilesize == 0)
-                    {
-                        _msg += $"Loading finished: {DateTime.Now}\n";
-                        await AzureStorageHelper.LogToStorage(_fhirStorageConnection, _fhirLogsContainer, "log" + _logfilecount.ToString() + "_" + Guid.NewGuid() + ".txt", _msg);
-                        Console.WriteLine($"{_jsonfilecount} files processed");
-                        _msg = $"Loading started: {DateTime.Now}\n";
-                        _logfilecount++;
-                    }
-
-                    _jsonfilecount++;
-                }
-
-                if (_jsonfilecount % _logfilesize != 0)
-                {
-                    _msg += $"Loading finished: {DateTime.Now}\n";
-                    await AzureStorageHelper.LogToStorage(_fhirStorageConnection, _fhirLogsContainer, "log" + _logfilecount.ToString() + "_" + Guid.NewGuid() + ".txt", _msg);
-
-                }
-
-            }
-
-
-
-    }
-
-        static private void LoadJsonData()
-        {
-
-        }
-
-        static private void LoadNDJsonData()
-        {
-
-        }
-
-        static private void ExportFHIRData()
-        {
-
-        }
-        static private void DeleteFHIRData()
-        {
-
-        }
-
-    private static CloudBlockBlob GetBlobReference(string connectionString, string containerName, string blobName)
-    {
-        CloudStorageAccount storageAccount;
-        if (CloudStorageAccount.TryParse(connectionString, out storageAccount))
+        private static BlobContainerClient GetContainerReference(string storageConnection, string containerName, bool createcontainer)
         {
             try
             {
-                CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
-                var container = cloudBlobClient.GetContainerReference(containerName);
-                var blockBlob = container.GetBlockBlobReference(blobName);
-                return blockBlob;
+                BlobServiceClient blobServiceClient = new BlobServiceClient(storageConnection);
+                BlobContainerClient blobContainerClient;
+                blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                if (createcontainer)
+                {
+                    blobContainerClient.CreateIfNotExists();
+                }
+
+                if (!blobContainerClient.Exists())
+                {
+                    Console.WriteLine($"Storage container {containerName} not found.");
+                    return null;
+
+                }
+                return blobContainerClient;
             }
             catch
             {
-                log.LogCritical("Unable to get blob reference");
+                Console.WriteLine($"Unable to parse stroage reference or connect to storage account {storageConnection}.");
                 return null;
             }
         }
-        else
+
+        static private async Task ProcessSyntheaData(bool convertjson)
         {
-            log.LogCritical("Unable to parse connection string and create storage account reference");
-            return null;
-        }
+            var blobContainerClientConvert = GetContainerReference(_bundleStorageConnection, _bundleContainerconvert, true);
+            var blobContainerClient = GetContainerReference(_bundleStorageConnection, _bundleContainer, false);
+            if (convertjson)
+            {
+                Console.WriteLine($"\nConverting FHIR data.");
+                
+            }
+            else
+            {
+                Console.WriteLine($"\nUploading FHIR data to {_fhiraudience}.");
+                //use the container where files have been converted
+                blobContainerClient = blobContainerClientConvert;
+            }
+
+            if (!string.IsNullOrEmpty(_fhirFileFilter))
+                Console.Write($"Accessing files in storage folder {_fhirFileFilter}. ");
+
+            Console.Write($"Starting at file #{_fhirFileCountStart}. ");
+
+            Console.WriteLine($"Please wait...\n");
+
+            
+            // List all blobs in the container
+            await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
+                {
+                //Only process filtered json files
+                if (!blobItem.Name.Contains(_fhirFileFilter))
+                    continue;
+
+                //Resume loading manually
+                if (_jsonfilecount < _fhirFileCountStart)
+                {
+                    _jsonfilecount++;
+                    continue;
+                }
+
+                Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
+
+                BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                BlobDownloadInfo download = await blobClient.DownloadAsync();
+                var streamReader = new StreamReader(download.Content);
+                _content = await streamReader.ReadToEndAsync();
+
+                _fhirLoaderResponse = await FHIRDLHelper.ProcessFHIRResource(_fhiraudience, _accesstoken, _content, convertjson);
+
+                _retry = 1;
+
+                while (_fhirLoaderResponse is null)
+                {
+
+                    if (_retry > _fhirMaxRetry)
+                    {
+                        Console.WriteLine($"Retry has exceeded the max limit. Exit now.");
+                        break;
+                    }
+
+                    Console.WriteLine($"*******************  Retry due to error *******************");
+
+                    if (_fhirserversecurity)
+                    {
+                        if (FHIRDLHelper.isTokenExpired(_accesstoken))
+                            _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
+
+                        Console.WriteLine($"Get a new access token");
+
+                    }
+
+                    _fhirLoaderResponse = await FHIRDLHelper.ProcessFHIRResource(_fhiraudience, _accesstoken, _content, convertjson);
+                    _retry++;
+                }
+
+                if (convertjson)
+                {
+                    //copy the json bundle file to a new storage container
+                    byte[] byteArray = Encoding.UTF8.GetBytes(_fhirLoaderResponse);
+                    MemoryStream stream = new MemoryStream(byteArray);
+                    BlobClient blobClientConvert = blobContainerClientConvert.GetBlobClient(blobItem.Name + ".ndjson");
+                    await blobClientConvert.UploadAsync(stream, true);
+
+                }
+
+                _jsonfilecount++;
+
+                }
+
+
+            }
+
+
 
     }
 
-}
-
 
 }
+
 
