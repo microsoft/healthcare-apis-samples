@@ -1,6 +1,6 @@
 ## CLI/Bash
 ##variables
-resourcegroupname=rg-jupiter-arm-cli5
+resourcegroupname=rg-himss-demo
 location=southcentralus
 workspacename=a5ws
 servicename=a5fhir
@@ -20,4 +20,4 @@ storageaccountconfirm=true
 az group create --name $resourcegroupname --location $location
 
 ##deploy the resource
-az deployment group create --resource-group $resourcegroupname --template-file 'src\\templates\\fhirtemplate.json' --parameters location=$location workspaceName=$workspacename serviceName=$servicename tenantid=$tenantid  storageAccountName=$storageaccountname storageAccountConfirm=$storageaccountconfirm
+az deployment group create --resource-group $resourcegroupname --template-file 'src\\templates\\fhirtemplate.json' --parameters region=$location workspaceName=$workspacename serviceName=$servicename tenantid=$tenantid  storageAccountName=$storageaccountname storageAccountConfirm=$storageaccountconfirm

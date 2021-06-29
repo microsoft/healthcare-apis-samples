@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
+
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Azure.Services.AppAuthentication;
@@ -13,8 +14,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Net;
-using System.Text.Json;
-using System.Text.Encodings.Web;
 using Newtonsoft.Json;
 
 namespace HealthcareAPIsSamples
@@ -70,10 +69,8 @@ namespace HealthcareAPIsSamples
             return false;
         }
 
-        public static async Task<string> ProcessFHIRResource(string fhirresource, string accesstoken, string content, bool convertjson)
+        public static string ConvertJsonFiles(string content)
         {
-            string _requestUrl = null;
-            int processed = 0;
             string _s = null;
             JObject _obj = null;
             string _id = null;
@@ -86,12 +83,10 @@ namespace HealthcareAPIsSamples
                 JObject _objContent = JObject.Parse(content);
                 if (_objContent == null || _objContent["entry"] == null || ((string)_objContent["resourceType"] != "Bundle") || ((string)_objContent["type"] != "transaction"))
                 {
-                    throw new Exception("LoadFHIRResource:  json file is empty, or missing bundle, entry block, transaction");
+                    throw new Exception("json file is empty, or missing bundle, entry block, transaction");
                 }
 
                 JArray _entries = (JArray)_objContent["entry"];
-                HttpClient _client = new HttpClient();
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesstoken);
 
                 //Use Dictionary to store resource id and resource type 
                 Dictionary<string, ResourceRefPair> _dict = new Dictionary<string, ResourceRefPair>();
@@ -104,8 +99,7 @@ namespace HealthcareAPIsSamples
                     _id = (string)_obj["id"];
                     _rt = (string)_obj["resourceType"];
 
-                    if (convertjson)  //convert urn:uuid to resource type
-                    {
+
                         //save id and resource type to dictionary for FHIR "reference" lookup
                         _dict.TryAdd(_fullUrl, new ResourceRefPair
                         {
@@ -117,36 +111,15 @@ namespace HealthcareAPIsSamples
                         //skip if JToken object doesn't contain reference 
                         if (_s.IndexOf("reference") >= 0)
                         {
-                            ConvertUUIDs(_tok, _dict);
+                            ReplaceUUIDWithResourceType(_tok, _dict);
                             _s = (_tok["resource"]).ToString(Formatting.None);
                         }
 
                         //add each json file to one line for ndjson file
                         _jsonString += _s + "\n";
 
-                    }
-                    else  //no conversion
-                    {
-                        _jsonString = _s;
-
-                        HttpContent _hc = new StringContent(_s, Encoding.UTF8, "application/json");
-                        _requestUrl = fhirresource + "/" + _rt + "/" + _id;
-
-                        HttpResponseMessage _response = await _client.PutAsync(_requestUrl, _hc);
-
-                        switch (_response.StatusCode)
-                        {
-                            case HttpStatusCode.OK:
-                            case HttpStatusCode.Created:
-                                break;
-                            //case HttpStatusCode.Unauthorized:
-                            default:
-                                Console.WriteLine($"==> http status code {_response.StatusCode} resource type {_rt} resource id {_id}");
-                                return _response.StatusCode.ToString();
-                                break;
-                        }
-                    }
                 }
+
                 return _jsonString;
             }
             catch (Exception e)
@@ -156,8 +129,51 @@ namespace HealthcareAPIsSamples
             }
         }
 
+        public static async Task<string> ProcessFHIRResource(string fhirresource, string accesstoken, string content)
+        {
+            string _requestUrl = null;
+            string _id = null;
+            string _rt = null;
 
-        public static void ConvertUUIDs(JToken tok, Dictionary<string, ResourceRefPair> dict)
+            try
+            {
+                JObject _objContent = JObject.Parse(content);
+                if (_objContent == null || _objContent["resourceType"] == null)
+                {
+                    throw new Exception("json file is empty, or invalid");
+                }
+
+                HttpClient _client = new HttpClient();
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesstoken);
+
+                HttpContent _hc = new StringContent(content, Encoding.UTF8, "application/json");
+
+                _rt = (string)_objContent["resourceType"];
+                _id = (string)_objContent["id"];
+                _requestUrl = fhirresource + "/" + _rt + "/" + _id;
+
+                HttpResponseMessage _response = await _client.PutAsync(_requestUrl, _hc);
+
+                switch (_response.StatusCode)
+                {
+                    case HttpStatusCode.OK:
+                    case HttpStatusCode.Created:
+                        break;
+                    //case HttpStatusCode.Unauthorized:
+                    default:
+                        Console.WriteLine($"http status code {_response.StatusCode} resource type {_rt} resource id {_id}");
+                        return null;
+                }
+                return _requestUrl;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"exception: {e.Message}");
+                return null;
+            }
+        }
+
+        public static void ReplaceUUIDWithResourceType(JToken tok, Dictionary<string, ResourceRefPair> dict)
         {
 
             switch (tok.Type)
@@ -167,7 +183,7 @@ namespace HealthcareAPIsSamples
 
                     foreach (JToken _c in tok.Children())
                     {
-                        ConvertUUIDs(_c, dict);
+                        ReplaceUUIDWithResourceType(_c, dict);
                     }
 
                     break;
@@ -182,7 +198,7 @@ namespace HealthcareAPIsSamples
                     }
                     else
                     {
-                        ConvertUUIDs(prop.Value, dict);
+                        ReplaceUUIDWithResourceType(prop.Value, dict);
                     }
                     break;
                 case JTokenType.String:
