@@ -1,6 +1,6 @@
 ## CLI/Bash
 ##variables
-resourcegroupname=rg-himss-demo
+resourcegroupname=rg-fhir-rest$RANDOM
 location=southcentralus
 workspacename=a5ws
 servicename=a5fhir

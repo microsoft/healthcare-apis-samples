@@ -155,6 +155,8 @@ namespace HealthcareAPIsSamples.FHIRDL
 
         static private async Task ProcessSyntheaData(bool convertjson)
         {
+            //reset counters
+            _jsonfilecount = 1;
             _retry = 1;
             _fhirLoaderResponse = null;
 

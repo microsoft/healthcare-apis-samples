@@ -5,7 +5,7 @@ $location="South Central US"
 $workspacename="a33ws"
 $fhirservicename="a33fhir"
 $iotconnectorname="a33iot"
-$externalfqeEventhubnamespace = "bxeventhubns.servicebus.windows.net"
+$externalfqeventhubnamespace = "bxeventhubns.servicebus.windows.net"
 $externaleventhubname="bxeventhub1"
 $externalconsumergroup="bxeventhubcg1"
 
@@ -23,4 +23,4 @@ Connect-AzAccount
 New-AzResourceGroup -Name $resourcegroupname -Location $location
 
 ##deploy the resource
-New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile "src/templates/iottemplate.json" -region $location -workspaceName $workspacename -fhirServiceName $fhirservicename -iotConnectorName $iotconnectorname  -externalFQEventHubNamespace $externalfqeEventhubnamespace -externalEventHubName $externaleventhubname -externalConsumerGroup $externalconsumergroup
+New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile "src/templates/iottemplate.json" -region $location -workspaceName $workspacename -fhirServiceName $fhirservicename -iotConnectorName $iotconnectorname  -externalFQEventHubNamespace $externalfqeventhubnamespace -externalEventHubName $externaleventhubname -externalConsumerGroup $externalconsumergroup -tenantid $tenantid

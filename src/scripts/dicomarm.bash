@@ -1,6 +1,6 @@
 ## CLI/Bash
 ##variables
-resourcegroupname=rg-dicom-cli2
+resourcegroupname=rg-dicom-cli$RANDOM
 location=southcentralus
 workspacename=a0ws
 dicomservicename=a0dicom

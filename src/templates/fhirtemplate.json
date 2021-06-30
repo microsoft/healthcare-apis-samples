@@ -16,7 +16,7 @@
         "workspaceName": {
             "type": "string"
         },
-        "serviceName": {
+        "fhirServiceName": {
             "type": "string"
         },
         "tenantid": {
@@ -57,7 +57,7 @@
        {          
             "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
             "kind": "fhir-R4",
-            "name": "[concat(parameters('workspaceName'), '/', parameters('serviceName'))]",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('fhirServiceName'))]",
             "apiVersion": "2020-11-01-preview",
             "location": "[parameters('region')]",
             "dependsOn": [
@@ -70,7 +70,7 @@
                 "accessPolicies": "[parameters('AccessPolicies')]",
                 "authenticationConfiguration": {
                     "authority": "[variables('Authority')]",
-                    "audience": "[concat('https//', parameters('workspaceName'), '-', parameters('serviceName'), '.fhir.azurehealthcareapis.com')]",
+                    "audience": "[concat('https//', parameters('workspaceName'), '-', parameters('fhirServiceName'), '.fhir.azurehealthcareapis.com')]",
                     "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
                 },
                 "corsConfiguration": {
@@ -96,7 +96,7 @@
             },
             "condition": "[parameters('storageAccountConfirm')]",
             "dependsOn": [
-                "[parameters('serviceName')]"
+                "[parameters('fhirServiceName')]"
             ],
             "sku": {
                 "name": "Standard_LRS"

@@ -31,10 +31,26 @@
 		"externalConsumerGroup": {
 			"type": "string",
 			"defaultValue": "consumerGroup1"
-		}
+		},
+		    "authorityurl": {
+            "type": "string",
+            "defaultValue": "https://login.microsoftonline.com"
+        },
+		"tenantid": {
+            "type": "string"
+        },
+		"AccessPolicies": {
+            "type": "array",
+            "defaultValue": []
+        },
+        "smartProxyEnabled": {
+            "type": "bool",
+            "defaultValue": false
+        }
 
 	},
 	"variables": {
+		"authority" : "[Concat(parameters('authorityurl'), '/', parameters('tenantid'))]",
         "fhirResource": "[resourceId('Microsoft.HealthcareApis/workspaces/fhirservices', parameters('workspaceName'), parameters('fhirServiceName'))]"
          },
 	"resources": [
@@ -48,6 +64,38 @@
             },
 			"properties": {}
 		},
+		{          
+            "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+            "kind": "fhir-R4",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('fhirServiceName'))]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
+            ],
+            "tags": {
+                "environmentName": "[parameters('tagName')]"
+            },
+            "properties": {
+                "accessPolicies": "[parameters('AccessPolicies')]",
+                "authenticationConfiguration": {
+                    "authority": "[variables('Authority')]",
+                    "audience": "[concat('https//', parameters('workspaceName'), '-', parameters('fhirServiceName'), '.fhir.azurehealthcareapis.com')]",
+                    "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
+                },
+                "corsConfiguration": {
+                    "allowCredentials": false,
+                    "headers": ["*"],
+                    "maxAge": 1440,
+                    "methods": ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"],
+                    "origins": ["https://localhost:6001"]
+                },
+                "exportConfiguration": {
+                    "storageAccountName": null
+                }
+            },
+            "identity": "[json('null')]"
+        },
 		{
 			"type": "Microsoft.HealthcareApis/workspaces/iotconnectors",
 			"name": "[concat(parameters('workspaceName'), '/', parameters('iotConnectorName'))]",

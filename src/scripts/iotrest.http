@@ -1,0 +1,185 @@
+### REST Client - an alternative to Postman
+@resourcegroupname=rg-iot-rest
+@workspacename=a55ws
+@fhirservicename=a55fhir
+@iotconnectorname=a55iot
+@iotconnectordestination=output1
+@location=southcentralus
+@subscriptionid=cc148bf2-42fb-4913-a3fb-2f284a69eb89
+@tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
+@clientid=b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
+@clientsecret=1~uOXvbD-9cXsQCc~7N3~Djcd1l77uu5d7
+@resource=https://management.azure.com/
+@authorityurl=https://login.microsoftonline.com
+@externalfqeventhubnamespace=bxeventhubns.servicebus.windows.net
+@externaleventhubname=bxeventhub1
+@externalconsumergroup=bxeventhubcg1
+@apiversion=2020-11-01-preview
+#@apiversion=2021-03-30-preview
+
+
+### Get an access token
+# @name getToken
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{resource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
+
+### create resource group
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{resourcegroupname}}?api-version=2021-04-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "location": "{{location}}"
+}
+
+### create workspace
+Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "{{workspacename}}",
+    "type": "Microsoft.HealthcareApis/workspaces",
+    "location": "{{location}}",
+    "properties": {
+    }
+}
+
+### create FHIR instance (if it hasn't been created)
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{fhirservicename}}",
+  "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+  "location": "{{location}}",
+  "kind": "fhir-R4",
+  "properties": {
+    "accessPolicies": [],
+    "authenticationConfiguration": {
+      "authority": "{{authorityurl}}/{{tenantid}}",
+      "audience": "https://{{workspacename}}-{{fhirservicename}}.fhir.healthcareapis.com",
+      "smartProxyEnabled": false
+    },
+    "corsConfiguration": {
+      "origins": [
+        "*"
+      ],
+      "headers": [
+        "*"
+      ],
+      "methods": [
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT"
+      ],
+      "maxAge": 1440,
+      "allowCredentials": false
+    },
+    "exportConfiguration": {
+      "storageAccountName": null
+    }
+  }
+}
+
+### create IoT Connector
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/iotconnectors/{{iotconnectorname}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{iotconnectorname}}",
+  "type": "Microsoft.HealthcareApis/workspaces/iotconnectors",
+  "location": "{{location}}",
+  "properties": {
+				"ingestionEndpointConfiguration": {
+					"eventHubName": "{{externaleventhubname}}",
+					"consumerGroup": "{{externalconsumergroup}}",
+					"fullyQualifiedEventHubNamespace": "{{externalfqeventhubnamespace}}"
+                },
+                "deviceMapping": {
+                    "content": {
+                        "templateType": "CollectionContent",
+                        "template": [
+                            {
+                                "templateType": "JsonPathContent",
+                                "template": {
+                                    "typeName": "heartrate",
+                                    "typeMatchExpression": "$..[?(@heartrate)]",
+                                    "deviceIdExpression": "$.deviceid",
+                                    "timestampExpression": "$.measurementdatetime",
+                                    "values": [
+                                        {
+                                            "required": "true",
+                                            "valueExpression": "$.heartrate",
+											"valueName": "Heart rate"
+										}
+									]
+								}
+                            }
+                        ]
+                    }
+                }
+            }
+}
+
+### create IoT Connector Destination
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/iotconnectors/{{iotconnectorname}}/destinations/{{iotconnectordestination}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{iotconnectordestination}}",
+  "type": "Microsoft.HealthcareApis/workspaces/iotconnectors/destinations",
+  "location": "{{location}}",
+  "properties": {
+				"destinationType": "FhirServer",
+				"resourceIdentityResolutionType": "Create",
+				"fhirServiceResourceId": "/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}",
+				"fhirMapping": {
+                    "content": {
+                        "templateType": "CollectionFhirTemplate",
+                        "template": [
+                            {
+                                "templateType": "CodeValueFhir",
+                                "template": {
+                                    "codes": [
+                                        {
+                                            "code": "8867-4",
+                                            "system": "http://loinc.org",
+                                            "display": "Heart rate"
+                                        }
+                                    ],
+                                    "periodInterval": 60,
+                                    "typeName": "heartrate",
+                                    "value": {
+                                        "defaultPeriod": 5000,
+                                        "unit": "count/min",
+                                        "valueName": "hr",
+                                        "valueType": "SampledData"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+
+ }
+}
