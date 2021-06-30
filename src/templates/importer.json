@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "appNameImporter": {
@@ -26,14 +26,14 @@
                 "description": "Storage Account type"
             }
         },
-                "containerNameImport": {
+        "containerNameImport": {
             "type": "string",
             "defaultValue": "fhirimport",
             "metadata": {
                 "description": "The name of the storage container for source data."
             }
         },
-                "containerNameRejected": {
+        "containerNameRejected": {
             "type": "string",
             "defaultValue": "fhirrejected",
             "metadata": {
@@ -75,13 +75,13 @@
                 "description": "OAuth Authority"
             }
         },
-        "aadServiceClientId": {
+        "aadFHIRClientId": {
             "type": "string",
             "metadata": {
                 "description": "AAD service client application id"
             }
         },
-        "aadServiceClientSecret": {
+        "aadFHIRClientSecret": {
             "type": "string",
             "metadata": {
                 "description": "AAD service client secret"
@@ -138,23 +138,17 @@
             ]
         },
         {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2018-02-01",
-            "name": "[variables('hostingPlanName')]",
-            "tags": {
-                "FhirServerSolution": "[parameters('solutionType')]"
-                    },
-            "location": "[variables('location')]",
-            "properties": {
+                "type": "Microsoft.Web/serverfarms",
+                "apiVersion": "2018-02-01",
                 "name": "[variables('hostingPlanName')]",
-                "computeMode": "Dynamic"
-                            },
-                "sku":{  
-                    "name":"Y1",
-                    "tier":"Dynamic",
-                    "size":"Y1",
-                    "family":"Y",
-                    "capacity":0
+                "location": "[variables('location')]",
+                "sku": {
+                    "name": "Y1",
+                    "tier": "Dynamic"
+                },
+                "properties": {
+                    "name": "[variables('hostingPlanName')]",
+                    "computeMode": "Dynamic"
                     }
         },
         {
@@ -219,11 +213,11 @@
                         },
                                                 {
                             "name": "ClientId",
-                            "value": "[parameters('aadServiceClientId')]"
+                            "value": "[parameters('aadFHIRClientId')]"
                         },
                         {
                             "name": "ClientSecret",
-                            "value": "[parameters('aadServiceClientSecret')]"
+                            "value": "[parameters('aadFHIRClientSecret')]"
                         },
                         {
                             "name": "Audience",
