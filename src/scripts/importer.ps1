@@ -28,5 +28,4 @@ $storagerolescope="/subscriptions/" + $subscriptionid+ "/resourceGroups/" + $res
 #find FHIR service managed identity AAD object id
 $fhiraadobjectid="e6c37ed1-76c2-4a0f-b865-9c341a82b026"
 #Get-AzADServicePrincipal -ServicePrincipalName b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
-#Get-AzADApplication -ObjectId e28d5f65-d340-4c6a-9b9d-a7877d81832d | Get-AzADServicePrincipal
 New-AzRoleAssignment -ObjectId $fhiraadobjectid -RoleDefinitionName "Storage Blob Data Contributor" -Scope  $storagerolescope

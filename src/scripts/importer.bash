@@ -22,9 +22,10 @@ az group create --name $resourcegroupname --location $location
 az deployment group create --resource-group $resourcegroupname --template-file $importertemplate --parameters appNameImporter=$importername fhirServiceUrl=$fhirserviceurl aadFHIRClientId=$fhirclientid aadFHIRClientSecret=$fhirclientsecret
 
 # grant the importer Azure Function with access to the storage
-storagerolescope="/subscriptions/" + $subscriptionid+ "/resourceGroups/" + $resourcegroupname + "/providers/Microsoft.Storage/storageAccounts/" + $importername + "sa/blobServices/default"
+importerstoragename=$importername'sa'
+storagerolescope="https://management.azure.com/subscriptions/$subscriptionid/resourceGroups/$resourcegroupname/providers/Microsoft.Storage/storageAccounts/$importerstoragename/blobServices/default"
 #find FHIR service managed identity AAD object id
 fhiraadobjectid="e6c37ed1-76c2-4a0f-b865-9c341a82b026"
-#Get-AzADServicePrincipal -ServicePrincipalName b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
-#Get-AzADApplication -ObjectId e28d5f65-d340-4c6a-9b9d-a7877d81832d | Get-AzADServicePrincipal
-New-AzRoleAssignment -ObjectId $fhiraadobjectid -RoleDefinitionName "Storage Blob Data Contributor" -Scope  $storagerolescope
+#az ad sp show --id b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9 --query "[objectId]" -o table
+az role assignment create --assignee-object-id $fhiraadobjectid --role "Storage Blob Data Contributor" --scope $storagerolescope
+
