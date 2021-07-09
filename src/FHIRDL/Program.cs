@@ -7,17 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Threading;
-using System.Collections;
 using Microsoft.Extensions.Configuration;
-using Azure;
 using System.Threading.Tasks;
 using System.Text;
+using Azure.Messaging.EventHubs;
+using Azure.Messaging.EventHubs.Producer;
+using System.Linq;
+using System.Threading;
 
 namespace HealthcareAPIsSamples.FHIRDL
 {
@@ -44,6 +42,14 @@ namespace HealthcareAPIsSamples.FHIRDL
         static string _fhirclientSecret;
         static string _fhirlogin;
         static string _authority;
+
+        // The Event Hubs client types are safe to cache and use as a singleton for the lifetime
+        // of the application, which is best practice when events are being published or read regularly.
+        static EventHubProducerClient producerClient;
+        static string _streventhubconnection;
+        static string _streventhubname;
+        static string _deviceid;
+        static string _patientid;
 
         static string _accesstoken = null;
         static string _requestUrl = null;
@@ -92,6 +98,11 @@ namespace HealthcareAPIsSamples.FHIRDL
             _fhirlogin = config["fhirloginauthority"];
             _authority = _fhirlogin + "/" + _fhirtenantId;
 
+            _streventhubconnection= config["eventhubconnection"];
+            _streventhubname = config["eventhubname"];
+            _deviceid = config["deviceid"];
+            _patientid = config["patientid"];
+
             await DisplayMenuOptions();
 
         }
@@ -104,6 +115,7 @@ namespace HealthcareAPIsSamples.FHIRDL
             menuItems += "Update appsettings.json before running the tool.\n";
             menuItems += "1. Convert Synthea FHIR Bundles in Azure Storage\n";
             menuItems += "2. Load FHIR Bundles (ndjson files after urn:uuid conversion)\n";
+            menuItems += "3. Send simulated IoT data (heart rate)\n";
             menuItems += "q. Exit the program\n";
 
             while (menuOptionLoop)
@@ -116,6 +128,10 @@ namespace HealthcareAPIsSamples.FHIRDL
                     case "2":
                         menuOption = "";
                         await ProcessSyntheaData(false);
+                        break;
+                    case "3":
+                        menuOption = "";
+                        await SendSimulatedEventHubData();
                         break;
                     case "q":
                         return;
@@ -205,18 +221,18 @@ namespace HealthcareAPIsSamples.FHIRDL
             // List all blobs in the container
             await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
                 {
-                //Only process filtered json files
+                //Skip json files not included by the filter
                 if (!blobItem.Name.Contains(_fhirFileFilter))
                     continue;
 
-                //Resume loading manually
+                //Resume loading
                 if (_jsonfilecount < _fhirFileCountStart)
                 {
                     _jsonfilecount++;
                     continue;
                 }
 
-                //Stop loading manually
+                //Stop loading 
                 if (_jsonfilecount > _fhirFileCountEnd)
                 {
                     Console.WriteLine($"All files within the specified range {_fhirFileCountStart} - {_fhirFileCountEnd} have been processed \n");
@@ -224,6 +240,11 @@ namespace HealthcareAPIsSamples.FHIRDL
                 }
                 
                 Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
+
+                //// begin test only
+                //_jsonfilecount++;
+                //continue;
+                ////end test only
 
                 BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
                 BlobDownloadInfo download = await blobClient.DownloadAsync();
@@ -261,7 +282,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                     {
                         //read one line at a time and process it
                         _content = await streamReader.ReadLineAsync();
-                        _fhirLoaderResponse = await FHIRDLHelper.ProcessFHIRResource(_fhiraudience, _accesstoken, _content);
+                        _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, _content);
 
                         while (_fhirLoaderResponse is null)
                         {
@@ -280,7 +301,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 Console.WriteLine($"Get a new AAD access token");
                             }
 
-                            _fhirLoaderResponse = await FHIRDLHelper.ProcessFHIRResource(_fhiraudience, _accesstoken, _content);
+                            _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, _content);
                             _retry++;
                         }
                     }
@@ -294,7 +315,49 @@ namespace HealthcareAPIsSamples.FHIRDL
             }
 
 
+        static private async Task SendSimulatedEventHubData()
+        {
+            //https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-dotnet-standard-getstarted-send
 
+            string _eventdata;
+            // Create a producer client that you can use to send events to an event hub
+            producerClient = new EventHubProducerClient(_streventhubconnection, _streventhubname);
+            try
+            {
+                Console.WriteLine($"Sennding data to Azure Event Hub for IoT Connector\n");
+                // Create event data
+                using EventDataBatch eventBatch = await producerClient.CreateBatchAsync();
+
+                while (true)
+                {
+                    var _heartrate = new Random().Next(70, 100);
+
+                    //https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
+                    _eventdata = $"{{\"heartrate\": \"{_heartrate}\",\"measurementdatetime\": \"{DateTime.Now.ToUniversalTime().ToString("O")}\",\"deviceId\": \"{_deviceid}\",\"patientId\": \"{_patientid}\"}}";
+
+                    if (!eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes(_eventdata))))
+                    {
+                        // if it is too large for the batch
+                        throw new Exception($"Event {_eventdata} cannot be sent.");
+                    }
+
+                    // Use the producer client to send the batch of events to the event hub
+                    await producerClient.SendAsync(eventBatch);
+                    
+                    Console.WriteLine($"Event {_eventdata}");
+                    Thread.Sleep(1000);
+
+                }
+
+            }
+
+            finally
+            {
+                await producerClient.DisposeAsync();
+            }
+
+        }
+        
     }
 
 

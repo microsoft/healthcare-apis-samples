@@ -94,7 +94,7 @@
                     "storageAccountName": null
                 }
             },
-            "identity": "[json('null')]"
+            "identity":  {"type": "SystemAssigned"}
         },
 		{
 			"type": "Microsoft.HealthcareApis/workspaces/iotconnectors",

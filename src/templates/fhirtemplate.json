@@ -40,7 +40,7 @@
     },
     "variables": { 
         "authority" : "[Concat(parameters('authorityurl'), '/', parameters('tenantid'))]",
-        "createManagedIdentity" : "[parameters('storageAccountConfirm')]",
+        "createManagedIdentity" : true,
         "managedIdentityType" : {
             "type" : "systemAssigned"
         },

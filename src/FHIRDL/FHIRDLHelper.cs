@@ -129,7 +129,7 @@ namespace HealthcareAPIsSamples
             }
         }
 
-        public static async Task<string> ProcessFHIRResource(string fhirresource, string accesstoken, string content)
+        public static async Task<string> LoadFHIRResource(string fhirresource, string accesstoken, string content)
         {
             string _requestUrl = null;
             string _id = null;

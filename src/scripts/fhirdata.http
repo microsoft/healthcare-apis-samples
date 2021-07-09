@@ -1,11 +1,12 @@
 ### REST Client - an alternative to Postman
-@fhiraudience=https://ws1-fhirdata.fhir.azurehealthcareapis.com
+#@fhiraudience=https://ws1-fhirdata.fhir.azurehealthcareapis.com
+@fhiraudience=https://ws1-fhir11.fhir.azurehealthcareapis.com
 @clientid=b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
 @clientsecret=1~uOXvbD-9cXsQCc~7N3~Djcd1l77uu5d7
 @tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
 
 ### Get metadata
-Get audience}}/metadata
+Get {{fhiraudience}}/metadata
 
 ### Get access token 
 # @name getToken 
@@ -19,17 +20,26 @@ grant_type=client_credentials
 
 ### Capture access token from getToken request
 @token = {{getToken.response.body.access_token}}
+#@token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL3dzMS1maGlyZGF0YS5maGlyLmF6dXJlaGVhbHRoY2FyZWFwaXMuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3LyIsImlhdCI6MTYyNTc4MjMzOCwibmJmIjoxNjI1NzgyMzM4LCJleHAiOjE2MjU3ODYyMzgsImFjciI6IjEiLCJhaW8iOiJBVVFBdS84VEFBQUFTV3BTeHJZc0hBL1BZRUo1OVhMNU5QZE1qQTRWR1d4N1Y3Mmk2aXFEUFNsQktFNnFPMWlMU0gxVGxsTVdSVlI3a01va0V2TE4rTFdkRWV3UU9pT3JMZz09IiwiYW1yIjpbInJzYSIsIm1mYSJdLCJhcHBpZCI6IjA0YjA3Nzk1LThkZGItNDYxYS1iYmVlLTAyZjllMWJmN2I0NiIsImFwcGlkYWNyIjoiMCIsImRldmljZWlkIjoiOWJiNmQ1MGYtMjMxOC00ODZmLTg2OWItNTkyYTE2YzFkN2MwIiwiZmFtaWx5X25hbWUiOiJYdWUiLCJnaXZlbl9uYW1lIjoiQmVuamFtaW4iLCJpcGFkZHIiOiI3My4xNjQuMTcuMzEiLCJuYW1lIjoiQmVuamFtaW4gWHVlIiwib2lkIjoiMWNhN2UzODAtN2FkYS00NDg1LWI2MmQtYzI2MzBhN2VkMDJmIiwib25wcmVtX3NpZCI6IlMtMS01LTIxLTEyNDUyNTA5NS03MDgyNTk2MzctMTU0MzExOTAyMS0xMzQ3NTEiLCJwdWlkIjoiMTAwMzdGRkU4MDFBQjg4RiIsInJoIjoiMC5BUm9BdjRqNWN2R0dyMEdScXkxODBCSGJSNVYzc0FUYmpScEd1LTRDLWVHX2UwWWFBQWMuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic3ViIjoidU1hZWJIanFwbXhZU0ZoTTg2ZFJBcnFWNmoxZ2otNzZtc3UxS0RINEdtayIsInRpZCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsInVuaXF1ZV9uYW1lIjoienh1ZUBtaWNyb3NvZnQuY29tIiwidXBuIjoienh1ZUBtaWNyb3NvZnQuY29tIiwidXRpIjoibVNzUE5oeHdnMHlydGdaZHNaWXlBQSIsInZlciI6IjEuMCJ9.lUFLCUm9OO0c7qTQwCkEUzfIuAzCJDphky4Y5g4kg6JvB6D3MAgbJB4on8zT7ErRGJKjFw0zwp5-8_QtSqq33z_l8BWr_RiZyoOW7xJv5laDIxWZHBTaR2gVQyf986TPvvtgEpXUymivvKp2IPibNP-C72TIukC0EJbqEjW7BZuCWCdTtCMMBXBp9_wJpJjbHHOwxh58AUM6Bqln1QLs6n7Cq_VKb-J6LOCZh-38lBm_7KqlXm_QHm5SDFYgtC6X3NcYqDgO_XBRbWw_BHdud8YtXoSrreRm0Jg0eNto79PqC_haC0oBeDAsJRKv2VVtd_NH5n1lS2K2SGnJizHwhw
 
 ### Get Patient Data
-Get audience}}/Patient
+Get {{fhiraudience}}/Patient
 Authorization: Bearer {{token}}
 
 ### Get Patient count
 Get {{fhiraudience}}/Patient?_summary=count
 Authorization: Bearer {{token}}
 
-### Get Encounter count
-Get {{fhiraudience}}/Encounter?_summary=count
+### Get Device Data
+Get {{fhiraudience}}/Device
+Authorization: Bearer {{token}}
+
+### Get Observation
+Get {{fhiraudience}}/Observation
+Authorization: Bearer {{token}}
+
+### Get Observation
+Get {{fhiraudience}}/Observation?subject=Patient/a451d158-2dc8-4adf-a0c1-0237269e744e
 Authorization: Bearer {{token}}
 
 ### export
@@ -37,21 +47,20 @@ Get {{fhiraudience}}/$export?_container=export
 Authorization: Bearer {{token}}
 Accept: application/fhir+json
 Prefer: respond-async
-//https://himss21-fhir21.fhir.azurehealthcareapis.com/_operations/export/7afe307f-6b61-41bf-a454-4d732caf769f
 
 ### get export status
-Get audience}}/_operations/export/7afe307f-6b61-41bf-a454-4d732caf769f
+Get {{fhiraudience}}/_operations/export/efb38e7f-7725-466e-9590-9ed84b19a451
 Authorization: Bearer {{token}}
 
 
-### Get Patient Data
-Post {{fhiraudience}}/Patient
+### Create new patient
+PUT {{fhiraudience}}/Patient/a451d158-2dc8-4adf-a0c1-0237269e744e
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "resourceType": "Patient",
-    "id": "845e2bf7-6d8e-0cb3-a4f0-3e2a03526c3f",
+    "id": "a451d158-2dc8-4adf-a0c1-0237269e744e",
     "meta": {
         "versionId": "6",
         "lastUpdated": "2021-02-06T03:05:45.825+00:00"
@@ -147,9 +156,9 @@ Content-Type: application/json
     "name": [
         {
             "use": "official",
-            "family": "Batz141",
+            "family": "Demo",
             "given": [
-                "Aaron697"
+                "User"
             ],
             "prefix": [
                 "Mr."
@@ -216,4 +225,46 @@ Content-Type: application/json
             }
         }
     ]
+}
+
+### Create/update a device
+Post {{fhiraudience}}/Device
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "resourceType": "Device",
+    "id": "guid",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2021-05-08T22:41:16.777+00:00"
+    },
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: example</p><p><b>identifier</b>: 345675</p></div>"
+    },
+    "identifier": [
+        {
+            "system": "http://goodcare.org/devices/id",
+            "value": "d123"
+        }
+    ],
+    "patient": {
+        "reference": "Patient/a451d158-2dc8-4adf-a0c1-0237269e744e"
+    }
+}
+
+### Create/Update Clinical Trail Notes
+PUT {{fhiraudience}}/Device
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "resourceType": "ResearchStudy",
+  "id": "135e2bf7-6d8e-0cb3-a4f0-3e2a03526c3f",
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Any note here</div>"
+  },
+  "status": "completed"
 }

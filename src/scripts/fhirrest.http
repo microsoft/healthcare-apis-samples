@@ -1,7 +1,7 @@
 ### REST Client - an alternative to Postman
-@resourcegroupname=rg-fhir-rest
-@workspacename=a33ws
-@fhirservicename=a33fhir
+@resourcegroupname=rg-himss-demo
+@workspacename=ws1
+@fhirservicename=fhirdata
 @location=southcentralus
 @subscriptionid=cc148bf2-42fb-4913-a3fb-2f284a69eb89
 @tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
@@ -50,6 +50,7 @@ Accept: application/json
 }
 
 ### create FHIR instance
+#"identity": {"type": "SystemAssigned"},
 PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -60,12 +61,13 @@ Accept: application/json
   "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
   "location": "{{location}}",
   "kind": "fhir-R4",
+  "identity": {"type": "SystemAssigned"},
   "properties": {
     "accessPolicies": [],
     "authenticationConfiguration": {
       "authority": "{{authorityurl}}/{{tenantid}}",
-      "audience": "https://{{workspacename}}-{{fhirservicename}}.fhir.healthcareapis.com",
-      "smartProxyEnabled": false
+      "audience": "https://{{workspacename}}-{{fhirservicename}}.fhir.azurehealthcareapis.com",
+      "smartProxyEnabled": true
     },
     "corsConfiguration": {
       "origins": [
@@ -91,3 +93,9 @@ Accept: application/json
   }
 }
 
+
+### Get FHIR Status
+GET  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
