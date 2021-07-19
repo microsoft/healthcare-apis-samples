@@ -1,9 +1,12 @@
 ## PowerShell
 ##variables
-$resourcegroupname="rg-himss-demo"
+$resourcegroupname="rg-csstest1"
 $location="South Central US"
-$workspacename="a1ws"
-$dicomservicename="a33dicom"
+$workspacename="bxwstest111"
+$tenantid="72f988bf-86f1-41af-91ab-2d7cd011db47"
+#$subscriptionid="cc148bf2-42fb-4913-a3fb-2f284a69eb89"
+$subscriptionid="a1766500-6fd5-4f5c-8515-607798271014"
+
 
 ##login to azure
 Connect-AzAccount 
@@ -18,4 +21,5 @@ Connect-AzAccount
 New-AzResourceGroup -Name $resourcegroupname -Location $location
 
 ##deploy the resource
-New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile "src/templates/dicomtemplate.json" -region $location -workspaceName $workspacename -dicomServiceName $dicomservicename
+New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile "src/templates/workspacetemplate.json" -region $location -workspaceName $workspacename 
+

@@ -247,7 +247,27 @@ namespace HealthcareAPIsSamples.FHIRDL
                 ////end test only
 
                 BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+
+                ////begin delete files
+                //Console.WriteLine($"Delete file #{_jsonfilecount} {blobItem.Name}");
+                //await blobClient.DeleteAsync();
+                //_jsonfilecount++;
+                //continue;
+                ////end delete files
+
                 BlobDownloadInfo download = await blobClient.DownloadAsync();
+
+                ////begin copy files to a new folder
+                //var newPrefix = "newfoldname";
+                //var item = blobItem.Name;
+                //var newBlobItemName = newPrefix + item.Substring(item.IndexOf("/"));
+                //Console.WriteLine($"New file #{_jsonfilecount} {newBlobItemName}");
+                //BlobClient destBlob = blobContainerClient.GetBlobClient(newBlobItemName);
+                //await destBlob.UploadAsync(download.Content, true);
+                //_jsonfilecount++;
+                //continue;
+                ////end copy files to a new folder
+
                 var streamReader = new StreamReader(download.Content);
 
                 if (convertjson)
@@ -333,7 +353,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                     var _heartrate = new Random().Next(70, 100);
 
                     //https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
-                    _eventdata = $"{{\"heartrate\": \"{_heartrate}\",\"measurementdatetime\": \"{DateTime.Now.ToUniversalTime().ToString("O")}\",\"deviceId\": \"{_deviceid}\",\"patientId\": \"{_patientid}\"}}";
+                    _eventdata = $"{{\"heartrate\": \"{_heartrate}\",\"measurementdatetime\": \"{DateTime.Now.ToUniversalTime().ToString("O")}\",\"deviceid\": \"{_deviceid}\",\"patientid\": \"{_patientid}\"}}";
 
                     if (!eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes(_eventdata))))
                     {

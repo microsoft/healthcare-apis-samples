@@ -1,6 +1,8 @@
 ### REST Client - an alternative to Postman
 @dicomresource=https://ws1-dicom11.dicom.azurehealthcareapis.com
 @tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
+@clientid=b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
+@clientsecret=1~uOXvbD-9cXsQCc~7N3~Djcd1l77uu5d7
 @aadresource=https://dicom.healthcareapis.azure.com/
 @studyid=1.2.826.0.1.3680043.8.498.13230779778012324449356534479549187420
 @seriesid1=1.2.826.0.1.3680043.8.498.45787841905473114233124723359129632652
@@ -8,12 +10,21 @@
 @instanceid1=1.2.826.0.1.3680043.8.498.12714725698140337137334606354172323212
 @instanceid2=1.2.826.0.1.3680043.8.498.47359123102728459884412887463296905395
 @instanceid3=1.2.826.0.1.3680043.8.498.13273713909719068980354078852867170114
-
-#az account get-access-token --resource https://dicom.healthcareapis.azure.com/
+@dicomaadresource=https://dicom.healthcareapis.azure.com/
 
 ###get token
-#$token=$(az account get-access-token --resource=https://dicom.healthcareapis.azure.com/ --query accessToken --output tsv) 
-@token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJodHRwczovL2RpY29tLmhlYWx0aGNhcmVhcGlzLmF6dXJlLmNvbS8iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMWRiNDcvIiwiaWF0IjoxNjI1MTk3ODQxLCJuYmYiOjE2MjUxOTc4NDEsImV4cCI6MTYyNTIwMTc0MSwiYWNyIjoiMSIsImFpbyI6IkFVUUF1LzhUQUFBQTBKVklyN25ObnU1K08wdEcvRHZmZExFbHU2ZEh2YWlFRnVjZEJjVkM5MWxPc3Nyb1c3ODlVK1l3OUtTYklmaDBQQ0JXYjU4aEIrWDVJYlVrTGhuWTNRPT0iLCJhbXIiOlsicnNhIiwibWZhIl0sImFwcGlkIjoiMDRiMDc3OTUtOGRkYi00NjFhLWJiZWUtMDJmOWUxYmY3YjQ2IiwiYXBwaWRhY3IiOiIwIiwiZGV2aWNlaWQiOiI5YmI2ZDUwZi0yMzE4LTQ4NmYtODY5Yi01OTJhMTZjMWQ3YzAiLCJmYW1pbHlfbmFtZSI6Ilh1ZSIsImdpdmVuX25hbWUiOiJCZW5qYW1pbiIsImlwYWRkciI6IjczLjE2NC4xNy4zMSIsIm5hbWUiOiJCZW5qYW1pbiBYdWUiLCJvaWQiOiIxY2E3ZTM4MC03YWRhLTQ0ODUtYjYyZC1jMjYzMGE3ZWQwMmYiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMTI0NTI1MDk1LTcwODI1OTYzNy0xNTQzMTE5MDIxLTEzNDc1MSIsInB1aWQiOiIxMDAzN0ZGRTgwMUFCODhGIiwicmgiOiIwLkFSb0F2NGo1Y3ZHR3IwR1JxeTE4MEJIYlI1VjNzQVRialJwR3UtNEMtZUdfZTBZYUFBYy4iLCJzY3AiOiJ1c2VyX2ltcGVyc29uYXRpb24iLCJzdWIiOiJzOXZUUzJLN1BUcFpmdHhqNldCeFVMYUo4THJDeVgxTEZSSHRJcTM4aGdBIiwidGlkIjoiNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3IiwidW5pcXVlX25hbWUiOiJ6eHVlQG1pY3Jvc29mdC5jb20iLCJ1cG4iOiJ6eHVlQG1pY3Jvc29mdC5jb20iLCJ1dGkiOiJfMXlMVzVha1YwR3ZreVRveGVWYUFBIiwidmVyIjoiMS4wIn0.gX5WCTD2LDJw-EqwAaPNJFGgMeM0Mo_tcmnRxQiZ6zZupa9XJCCcZwEXKaFLpH9NFAs7Rp0_j8wcMFnE84IUdOf9ZOq5SeFEnt9-FQ2DLP1GPhkVujGTujfVmKuBtadfCX62HZ0Re63KLRIiGUIsioi6kFxdJglm2F69HwpL3NBGUgUtKvpxKTJi2X2oJ10hdgnkXSm4kqRUlU85NoTHk2rB_y_8aBiQjIal_wUp6BhQvTbLx7_ikq7o42Cx2QvxI9kQ8twTLkp-Ff4eFxHYd-OYRXXZRClggHeq0mHpRSkAi5z3wGwehS6VhBWa0dk5FKvJQJcP_Q9ZsaAJZS-u1g
+#token=$(az account get-access-token --resource=https://dicom.healthcareapis.azure.com/ --query accessToken --output tsv) 
+# @name getToken 
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{dicomaadresource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
 
 ### post
 #https://github.com/microsoft/dicom-server/blob/main/docs/resources/conformance-statement.md#store-stow-rs
@@ -63,6 +74,6 @@ Accept: multipart/related; type="application/octet-stream"; transfer-syntax=1.2.
 Get {{dicomresource}}/changefeed?includemetadata=false
 Authorization: Bearer {{token}}
 
-### change feed
+### change feed (no token required)
 Get https://bxdicom1.azurewebsites.net/changefeed?includemetadata=false
 

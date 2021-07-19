@@ -39,6 +39,10 @@ Get {{fhiraudience}}/Observation
 Authorization: Bearer {{token}}
 
 ### Get Observation
+Get {{fhiraudience}}/Observation?_summary=count
+Authorization: Bearer {{token}}
+
+### Get Observation
 Get {{fhiraudience}}/Observation?subject=Patient/a451d158-2dc8-4adf-a0c1-0237269e744e
 Authorization: Bearer {{token}}
 
@@ -49,7 +53,7 @@ Accept: application/fhir+json
 Prefer: respond-async
 
 ### get export status
-Get {{fhiraudience}}/_operations/export/efb38e7f-7725-466e-9590-9ed84b19a451
+Get {{fhiraudience}}/_operations/export/1e8cad79-bd2f-41f6-b41d-17ef6c4af68e
 Authorization: Bearer {{token}}
 
 
