@@ -1,36 +1,34 @@
-# How to Deploy Services with Healthcare APIs
+# Deploy the Healthcare APIs
 
+You can deploy each service through the Azure portal, or using scripts that you can find in the repo.
 
-You can deploy healthcare service instances using one of the following options:
+## Deploy workspace
+- [PowerShell script](/src/scripts/workspacearm.ps1)
+- [CLI script](/src/scripts/workspacearm.bash)
+- [REST API call](/src/scripts/workspacerest.http)
+- [workspace template](/src/templates/workspacetemplate.json)
 
-- Azure Portal
-- Healthcare APIs
-- Azure ARM templates
+## Deploy workspace and FHIR
+- [PowerShell script](/src/scripts/fhirarm.ps1)
+- [CLI script](/src/scripts/fhirarm.bash)
+- [REST API call](/src/scripts/fhirrest.http)
+- [fhir template](/src/templates/workspacetemplate.json)
 
-To deploy a service instance from the Azure portal, please refer to the technical documentation.
+Note: To deploy the FHIR service only, you can remove the workspace resource and the dependency on it in the template.
 
-To deploy a service instance using Healthcare APIs, you can use [ARM Rest API](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-rest). Open the sample Rest Client file in Visual Studio Code, modify the values in it and run the Get/Post/Put/Delete requests. For more info on how to use the Rest Client tool, review the [Rest Client doc](/docs/UseVSCodeExtensionRestClient.md).
+## Deploy workspace and DICOM
+- [PowerShell script](/src/scripts/dicomarm.ps1)
+- [CLI script](/src/scripts/dicomarm.bash)
+- [REST API call](/src/scripts/dicomrest.http)
+- [DICOM template](/src/templates/dicomtemplate.json)
 
-To deploy a service instance using ARM templates for Healthcare APIs, you can run [PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell) and [CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-cli) commands along with the template. The sample code below shows how to use PowerShell to create a FHIR service instance using the [template file](/src/templates/fhiremplate.json).
+Note: To deploy the DICOM service only, you can remove the workspace resource and the dependency on it in the template.
 
-```
-#Define variables
-$resourcegroupname="xxx"
-$location="xxx e.g. South Central US"
+## Deploy workspace, the FHIR service and Iot Connector
+- [PowerShell script](/src/scripts/iotarm.ps1)
+- [CLI script](/src/scripts/iotarm.bash)
+- [REST API call](/src/scripts/iotrest.http)
+- [IoT Connector template](/src/templates/iottemplate.json)
 
-#login to Azure and verify or set subscription
-Connect-AzAccount 
-
-#List current context
-Get-AzContext -ListAvailable
-#To connect to a specified subscription
-Connect-AzAccount SubscriptionId xxx
-#To change the context to a specified subscription
-Set-AzContext -Subscription xxx
-
-#Create a resource group
-New-AzResourceGroup -Name $resourcegroupname -Location $location
-
-#Deploy the resource
-New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile fhirtemplate.json
+Note: To deploy the IoT Connector only, you can remove the workspace resource, the fhir resource, and the dependency on them in the template.
 ```
