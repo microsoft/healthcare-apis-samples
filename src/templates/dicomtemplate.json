@@ -28,6 +28,9 @@
 			"name": "[concat(parameters('workspaceName'), '/', parameters('dicomServiceName'))]",
 			"apiVersion": "2020-11-01-preview",
 			"location": "[parameters('region')]",
+			"identity": {
+				"type": "None"
+			},
 			"dependsOn": [
 				"[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
 			],

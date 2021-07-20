@@ -2,13 +2,13 @@
 ##variables
 resourcegroupname=rg-dicom-cli$RANDOM
 location=southcentralus
-workspacename=a0ws
-dicomservicename=a0dicom
+workspacename=ws$RANDOM
+dicomservicename=dicom$RANDOM
 
 
 ##login to azure
 #az login
-# get the current default subscription using show
+#get the current default subscription using show
 #az account show --output table
 #az account set --subscription $subscriptionid
 
