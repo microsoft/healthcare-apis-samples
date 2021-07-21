@@ -1,4 +1,4 @@
-### REST Client - an alternative to Postman
+### REST Client  
 @resourcegroupname=rg-himss-demo
 @workspacename=ws1
 @fhirservicename=fhir11

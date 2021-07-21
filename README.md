@@ -9,6 +9,9 @@ All sample scripts have been tested in the Rest Client in Visual Studio, unless 
 - [How to deploy the Healthcare APIs](/docs/HowToDeploy.md)
 - [How to load data to the Healthcare APIs](/docs/HowToLoadData.md)
 - [How to access data in the Healthcare APIs](/docs/HowToAccessData.md)
+- [How to convert HL7v2 and C-CDA data](https://github.com/microsoft/vscode-azurehealthcareapis-tools/tree/main/FHIR-Converter)
+- [How to export de-identified data](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/de-identified-export)
+
 
 ## Contributing
 

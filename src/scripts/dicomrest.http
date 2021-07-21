@@ -1,4 +1,4 @@
-### REST Client - an alternative to Postman
+### REST Client  
 @resourcegroupname=rg-dicom-rest
 @workspacename=ws11
 @dicomservicename=dicom11

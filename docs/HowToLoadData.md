@@ -4,7 +4,7 @@ While you can load some data using tools such as Postman and the Rest Client ext
 
 ## Load data to the FHIR service using the standalone tool
 
-The FHIRDL tool is a standalone app, written in C#, that you can deploy and run locally using Docker Container. See more info on [Containerize a .net app](https://docs.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=windows).
+The FHIRDL tool is a standalone app, written in C#, that you can deploy and run locally on Windows 10 (or later version), or in a Docker Container on Windows and Linux. See more info on [Containerize a .net app](https://docs.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=windows).
 
 >[!Note]
 >Make sure you have generated Synthea data and loaded it to an Azure storage account. You can also download data from sources such as [this one](https://synthea.mitre.org/downloads).
@@ -14,6 +14,7 @@ For example, use the command below to generate 100 patients in the State of Wash
 `
 java -jar synthea-with-dependencies.jar Washington -p 100 -s 12345
 `
+Follow the steps below to run the app locally or in a Docker container.
 
 - Download the app
 `
@@ -25,17 +26,19 @@ java -jar synthea-with-dependencies.jar Washington -p 100 -s 12345
   - change the connection string to your storage account
   - change the client app credentials
   - change the event hub connection string (only if the IoT Connector is used)
-- Run the commands. Compile the code, build a docker image, and run it.
+- Compile the code 
+  `dotnet publish -c Release
+  `
+- To run the app locally, navigate to the folder, "bin\Release\fhirdl", type "fhirdl" to run the app.
+- Optionally, you can build a docker image, and run the app in a Docker container.
   
 ```
-    dotnet publish -c Release
-
     docker build -t fhirdl-image -f Dockerfile .
 
     docker run -it --rm fhirdl-image
 ```
 
-- Optionally, delete the docker image
+- If necessary, delete the docker image, and repeast the steps above.
 `
 docker rmi fhirdl-image
 `
