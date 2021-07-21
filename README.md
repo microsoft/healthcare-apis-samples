@@ -8,6 +8,7 @@ All sample scripts have been tested in the Rest Client in Visual Studio, unless 
 
 - [How to deploy the Healthcare APIs](/docs/HowToDeploy.md)
 - [How to load data to the Healthcare APIs](/docs/HowToLoadData.md)
+- [How to access data in the Healthcare APIs](/docs/HowToAccessData.md)
 
 ## Contributing
 
