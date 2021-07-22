@@ -1,8 +1,8 @@
 ## PowerShell
 ##variables
-$resourcegroupname="rg-himss-demo"
+$resourcegroupname="rg-bx222"
 $location="South Central US"
-$workspacename="ws1"
+$workspacename="ws2"
 $dicomservicename="dicom2"
 
 ##login to azure

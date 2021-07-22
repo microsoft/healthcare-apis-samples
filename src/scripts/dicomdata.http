@@ -28,7 +28,7 @@ grant_type=client_credentials
 
 ### post
 #https://github.com/microsoft/dicom-server/blob/main/docs/resources/conformance-statement.md#store-stow-rs
-Post {{dicomresource}}/studies/1.2.826.0.1.3680043.8.498.13230779778012324449356534479549187420
+Post {{dicomresource}}/studies/{{studyid}}
 Content-Type: multipart/related; boundary=MyBoundary
 Accept: application/dicom+json
 Authorization: Bearer {{token}}
@@ -38,20 +38,6 @@ Content-Disposition: form-data;
 Content-Type: application/dicom
 
 < C:\temp\dicomsampleimages\DICOM Sample\red-triangle.dcm
-
---MyBoundary--
-
-### post
-Post {{dicomresource}}/studies
-Content-Type: multipart/related; boundary=MyBoundary
-Accept: application/dicom+json
-Authorization: Bearer {{token}}
-
---MyBoundary
-Content-Disposition: form-data; 
-Content-Type: application/dicom
-
-< C:\temp\dicomsampleimages\DICOM Sample\image-000001.dcm
 
 --MyBoundary--
 
