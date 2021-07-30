@@ -1,9 +1,9 @@
 ## CLI/Bash
 ##variables
-resourcegroupname=rg-dicom-cli$RANDOM
-location=southcentralus
-workspacename=ws$RANDOM
-dicomservicename=dicom$RANDOM
+resourcegroupname=xxx
+location=e.g. southcentralus
+workspacename=xxx
+dicomservicename=xxx
 
 
 ##login to azure

@@ -1,12 +1,12 @@
 ### REST Client  
-@resourcegroupname=rg-dicom-rest
-@workspacename=ws11
-@dicomservicename=dicom11
+@resourcegroupname=xxx
+@workspacename=xxx
+@dicomservicename=xxx
 @location=southcentralus
-@subscriptionid=cc148bf2-42fb-4913-a3fb-2f284a69eb89
-@tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
-@clientid=b4b81ba7-7d13-4d10-ae2c-c097c5dd79c9
-@clientsecret=1~uOXvbD-9cXsQCc~7N3~Djcd1l77uu5d7
+@subscriptionid=xxx
+@tenantid=yourtenantid
+@clientid=yourclientid
+@clientsecret=yourclientsecret
 @resource=https://management.azure.com/
 @authorityurl=https://login.microsoftonline.com
 @apiversion=2020-11-01-preview

@@ -1,12 +1,12 @@
 ## PowerShell
 ##variables
-$resourcegroupname="rg-himss-demo"
-$location="southcentralus"
-$workspacename="ws1"
-$fhirservicename="a1fhir"
-$tenantid="72f988bf-86f1-41af-91ab-2d7cd011db47"
-$subscriptionid="cc148bf2-42fb-4913-a3fb-2f284a69eb89"
-$storageaccountname="a1stor"
+$resourcegroupname="xxx"
+$location="e.g. southcentralus"
+$workspacename="xxx"
+$fhirservicename="xxx"
+$tenantid="yourtenantid"
+$subscriptionid="xxx"
+$storageaccountname="xxx"
 $storageaccountconfirm=1
 
 ##login to azure

@@ -1,14 +1,14 @@
 ## CLI/Bash
 ##variables
-resourcegroupname=rg-iot-cli$RANDOM
-location=southcentralus
-workspacename=ws$RANDOM
-fhirservicename=fhir$RANDOM
-iotconnectorname=iot$RANDOM
-externalfqeventhubnamespace=bxeventhubns.servicebus.windows.net
-externaleventhubname=bxeventhub1
-externalconsumergroup=bxeventhubcg1
-tenantid=72f988bf-86f1-41af-91ab-2d7cd011db47
+resourcegroupname=xxx
+location=e.g. southcentralus
+workspacename=xxx
+fhirservicename=xxx
+iotconnectorname=xxx
+externalfqeventhubnamespace=xxx.servicebus.windows.net
+externaleventhubname=xxx
+externalconsumergroup=xxx
+tenantid=yourtenantid
 
 ##login to azure
 #az login
