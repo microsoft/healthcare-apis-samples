@@ -1,10 +1,10 @@
 # Healthcare APIs Samples
 
-This repo hosts samples for Healthcare APIs, including FHIR, DICOM, IoT Connector and data related services. The workspace is a top level logical container that resides within a resource group. It must be created first.
+This repo hosts samples for Healthcare APIs, including FHIR, DICOM, IoT Connector and data related services. The workspace is a top level logical container that is created first within a resource group.
 
 ![image.png](/docs/images/workspace.png)
 
-All sample scripts have been tested in the Rest Client in Visual Studio, unless otherwise noted.
+All sample scripts have been tested in the Rest Client in Visual Studio Code, unless otherwise noted.
 
 - [How to deploy the Healthcare APIs](/docs/HowToDeploy.md)
 - [How to load data to the Healthcare APIs](/docs/HowToLoadData.md)
