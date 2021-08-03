@@ -1,0 +1,184 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"defaultValue": "workspace1"
+		},
+        "fhirServiceName": {
+            "type": "string"
+        },
+		"iotConnectorName": {
+			"type": "string",
+			"defaultValue": "iotConnector1"
+		},
+        		"region": {
+			"type": "string"
+		},
+		"tagName": {
+            "type": "string",
+            "defaultValue": "My Deployment"
+        },
+        "externalFQEventHubNamespace": {
+			"type": "string",
+			"defaultValue": "externaleventhub.servicesbus.windows.net"
+		},
+		"externalEventHubName": {
+			"type": "string",
+			"defaultValue": "eventHub1"
+		},
+		"externalConsumerGroup": {
+			"type": "string",
+			"defaultValue": "consumerGroup1"
+		},
+		    "authorityurl": {
+            "type": "string",
+            "defaultValue": "https://login.microsoftonline.com"
+        },
+		"tenantid": {
+            "type": "string"
+        },
+		"AccessPolicies": {
+            "type": "array",
+            "defaultValue": []
+        },
+        "smartProxyEnabled": {
+            "type": "bool",
+            "defaultValue": false
+        }
+
+	},
+	"variables": {
+		"authority" : "[Concat(parameters('authorityurl'), '/', parameters('tenantid'))]",
+        "fhirResource": "[resourceId('Microsoft.HealthcareApis/workspaces/fhirservices', parameters('workspaceName'), parameters('fhirServiceName'))]"
+         },
+	"resources": [
+		{
+			"type": "Microsoft.HealthcareApis/workspaces",
+			"name": "[parameters('workspaceName')]",
+			"apiVersion": "2020-11-01-preview",
+			"location": "[parameters('region')]",
+			"tags": {
+                "environmentName": "[parameters('tagName')]"
+            },
+			"properties": {}
+		},
+		{          
+            "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+            "kind": "fhir-R4",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('fhirServiceName'))]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
+            ],
+            "tags": {
+                "environmentName": "[parameters('tagName')]"
+            },
+            "properties": {
+                "accessPolicies": "[parameters('AccessPolicies')]",
+                "authenticationConfiguration": {
+                    "authority": "[variables('Authority')]",
+                    "audience": "[concat('https//', parameters('workspaceName'), '-', parameters('fhirServiceName'), '.fhir.azurehealthcareapis.com')]",
+                    "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
+                },
+                "corsConfiguration": {
+                    "allowCredentials": false,
+                    "headers": ["*"],
+                    "maxAge": 1440,
+                    "methods": ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"],
+                    "origins": ["https://localhost:6001"]
+                },
+                "exportConfiguration": {
+                    "storageAccountName": null
+                }
+            },
+            "identity":  {"type": "SystemAssigned"}
+        },
+		{
+			"type": "Microsoft.HealthcareApis/workspaces/iotconnectors",
+			"name": "[concat(parameters('workspaceName'), '/', parameters('iotConnectorName'))]",
+			"apiVersion": "2020-11-01-preview",
+			"location": "[parameters('region')]",
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
+			],
+			"properties": {
+				"ingestionEndpointConfiguration": {
+					"eventHubName": "[parameters('externalEventHubName')]",
+					"consumerGroup": "[parameters('externalConsumerGroup')]",
+					"fullyQualifiedEventHubNamespace": "[parameters('externalFQEventHubNamespace')]"
+                },
+                "deviceMapping": {
+                    "content": {
+                        "templateType": "CollectionContent",
+                        "template": [
+                            {
+                                "templateType": "JsonPathContent",
+                                "template": {
+                                    "typeName": "heartrate",
+                                    "typeMatchExpression": "$..[?(@heartrate)]",
+                                    "deviceIdExpression": "$.deviceid",
+                                    "timestampExpression": "$.measurementdatetime",
+                                    "values": [
+                                        {
+                                            "required": "true",
+                                            "valueExpression": "$.heartrate",
+											"valueName": "Heart rate"
+										}
+									]
+								}
+                            }
+                        ]
+                    }
+                }
+            }
+		},
+		{
+			"type": "Microsoft.HealthcareApis/workspaces/iotconnectors/destinations",
+			"name": "[concat(parameters('workspaceName'), '/' , parameters('iotConnectorName'),'/output1')]",
+			"apiVersion": "2020-11-01-preview",
+			"location": "[parameters('region')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.HealthcareApis/workspaces/iotconnectors', parameters('workspaceName'), parameters('iotConnectorName'))]"
+			],
+			"properties": {
+				"destinationType": "FhirServer",
+				"resourceIdentityResolutionType": "Create",
+				"fhirServiceResourceId": "[variables('fhirResource')]",
+				"fhirMapping": {
+                    "content": {
+                        "templateType": "CollectionFhirTemplate",
+                        "template": [
+                            {
+                                "templateType": "CodeValueFhir",
+                                "template": {
+                                    "codes": [
+                                        {
+                                            "code": "8867-4",
+                                            "system": "http://loinc.org",
+                                            "display": "Heart rate"
+                                        }
+                                    ],
+                                    "periodInterval": 60,
+                                    "typeName": "heartrate",
+                                    "value": {
+                                        "defaultPeriod": 5000,
+                                        "unit": "count/min",
+                                        "valueName": "hr",
+                                        "valueType": "SampledData"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+		}
+	],
+	"outputs": {}
+}

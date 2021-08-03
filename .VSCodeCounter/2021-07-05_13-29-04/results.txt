@@ -1,0 +1,73 @@
+Date : 2021-07-05 13:29:04
+Directory : c:\temp\healthcare-apis-samples
+Total : 34 files,  12327 codes, 193 comments, 454 blanks, all 12974 lines
+
+Languages
++-----------------------+------------+------------+------------+------------+------------+
+| language              | files      | code       | comment    | blank      | total      |
++-----------------------+------------+------------+------------+------------+------------+
+| compressionTargetFile |          4 |     10,459 |          0 |        151 |     10,610 |
+| JSON                  |          5 |        635 |         10 |          9 |        654 |
+| HTTP                  |          5 |        554 |         52 |         73 |        679 |
+| C#                    |          2 |        401 |         36 |         90 |        527 |
+| Markdown              |          6 |        128 |          2 |         76 |        206 |
+| Shell Script          |          5 |         51 |         44 |         23 |        118 |
+| XML                   |          2 |         48 |          8 |         11 |         67 |
+| PowerShell            |          4 |         46 |         41 |         21 |        108 |
+| Docker                |          1 |          5 |          0 |          0 |          5 |
++-----------------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                   | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                      |         34 |     12,327 |        193 |        454 |     12,974 |
+| docs                                                                   |          6 |     10,534 |          0 |        193 |     10,727 |
+| docs\images                                                            |          4 |     10,459 |          0 |        151 |     10,610 |
+| docs\images\restclient                                                 |          4 |     10,459 |          0 |        151 |     10,610 |
+| src                                                                    |         23 |      1,726 |        183 |        225 |      2,134 |
+| src\FHIRDL                                                             |          5 |        458 |         46 |        106 |        610 |
+| src\scripts                                                            |         14 |        651 |        137 |        117 |        905 |
+| src\templates                                                          |          4 |        617 |          0 |          2 |        619 |
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------+-----------------------+------------+------------+------------+------------+
+| filename                                                               | language              | code       | comment    | blank      | total      |
++------------------------------------------------------------------------+-----------------------+------------+------------+------------+------------+
+| c:\temp\healthcare-apis-samples\CODE_OF_CONDUCT.md                     | Markdown              |          6 |          0 |          4 |         10 |
+| c:\temp\healthcare-apis-samples\GeoPol.xml                             | XML                   |         14 |          8 |          2 |         24 |
+| c:\temp\healthcare-apis-samples\README.md                              | Markdown              |         18 |          0 |          8 |         26 |
+| c:\temp\healthcare-apis-samples\SECURITY.md                            | Markdown              |         22 |          2 |         17 |         41 |
+| c:\temp\healthcare-apis-samples\SUPPORT.md                             | Markdown              |          7 |          0 |          5 |         12 |
+| c:\temp\healthcare-apis-samples\docs\DeployHealthcareAPIs.md           | Markdown              |         25 |          0 |         11 |         36 |
+| c:\temp\healthcare-apis-samples\docs\UseVSCodeExtensionRestClient.md   | Markdown              |         50 |          0 |         31 |         81 |
+| c:\temp\healthcare-apis-samples\docs\images\restclient\config.png      | compressionTargetFile |      4,154 |          0 |         59 |      4,213 |
+| c:\temp\healthcare-apis-samples\docs\images\restclient\getpatient.png  | compressionTargetFile |      2,495 |          0 |         39 |      2,534 |
+| c:\temp\healthcare-apis-samples\docs\images\restclient\install.png     | compressionTargetFile |      3,563 |          0 |         52 |      3,615 |
+| c:\temp\healthcare-apis-samples\docs\images\restclient\sendrequest.png | compressionTargetFile |        247 |          0 |          1 |        248 |
+| c:\temp\healthcare-apis-samples\src\FHIRDL\Dockerfile                  | Docker                |          5 |          0 |          0 |          5 |
+| c:\temp\healthcare-apis-samples\src\FHIRDL\FHIRDL.csproj               | XML                   |         34 |          0 |          9 |         43 |
+| c:\temp\healthcare-apis-samples\src\FHIRDL\FHIRDLHelper.cs             | C#                    |        174 |         15 |         34 |        223 |
+| c:\temp\healthcare-apis-samples\src\FHIRDL\Program.cs                  | C#                    |        227 |         21 |         56 |        304 |
+| c:\temp\healthcare-apis-samples\src\FHIRDL\appsettings.json            | JSON                  |         18 |         10 |          7 |         35 |
+| c:\temp\healthcare-apis-samples\src\scripts\dicomarm.bash              | Shell Script          |          6 |          9 |          4 |         19 |
+| c:\temp\healthcare-apis-samples\src\scripts\dicomarm.ps1               | PowerShell            |          7 |         10 |          5 |         22 |
+| c:\temp\healthcare-apis-samples\src\scripts\dicomodata.http            | HTTP                  |         40 |         11 |         17 |         68 |
+| c:\temp\healthcare-apis-samples\src\scripts\dicomrest.http             | HTTP                  |         48 |          8 |         11 |         67 |
+| c:\temp\healthcare-apis-samples\src\scripts\fhirarm.bash               | Shell Script          |         10 |          9 |          4 |         23 |
+| c:\temp\healthcare-apis-samples\src\scripts\fhirarm.ps1                | PowerShell            |         11 |         10 |          6 |         27 |
+| c:\temp\healthcare-apis-samples\src\scripts\fhirdata.http              | HTTP                  |        196 |         11 |         12 |        219 |
+| c:\temp\healthcare-apis-samples\src\scripts\fhirrest.http              | HTTP                  |         75 |          8 |         11 |         94 |
+| c:\temp\healthcare-apis-samples\src\scripts\githubwebsample.bash       | Shell Script          |          8 |          7 |          6 |         21 |
+| c:\temp\healthcare-apis-samples\src\scripts\importer.bash              | Shell Script          |         16 |         10 |          6 |         32 |
+| c:\temp\healthcare-apis-samples\src\scripts\importer.ps1               | PowerShell            |         16 |         11 |          5 |         32 |
+| c:\temp\healthcare-apis-samples\src\scripts\iotarm.bash                | Shell Script          |         11 |          9 |          3 |         23 |
+| c:\temp\healthcare-apis-samples\src\scripts\iotarm.ps1                 | PowerShell            |         12 |         10 |          5 |         27 |
+| c:\temp\healthcare-apis-samples\src\scripts\iotrest.http               | HTTP                  |        195 |         14 |         22 |        231 |
+| c:\temp\healthcare-apis-samples\src\templates\dicomtemplate.json       | JSON                  |         38 |          0 |          0 |         38 |
+| c:\temp\healthcare-apis-samples\src\templates\fhirtemplate.json        | JSON                  |        113 |          0 |          1 |        114 |
+| c:\temp\healthcare-apis-samples\src\templates\importer.json            | JSON                  |        283 |          0 |          0 |        283 |
+| c:\temp\healthcare-apis-samples\src\templates\iottemplate.json         | JSON                  |        183 |          0 |          1 |        184 |
+| Total                                                                  |                       |     12,327 |        193 |        454 |     12,974 |
++------------------------------------------------------------------------+-----------------------+------------+------------+------------+------------+

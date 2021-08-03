@@ -1,0 +1,132 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "authorityurl": {
+            "type": "string",
+            "defaultValue": "https://login.microsoftonline.com"
+        },
+        "tagName": {
+            "type": "string",
+            "defaultValue": "My Deployment"
+        },
+        "region": {
+            "type": "string",
+                  "allowedValues": [
+                "australiaeast",
+                "canadacentral",
+                "eastus",
+                "eastus2",
+                "germanywestcentral",
+                "japaneast",
+                "northcentralus",
+                "northeurope",
+                "southafricanorth",
+                "southcentralus",
+                "southeastasia",
+                "switzerlandnorth",
+                "uksouth",
+                "ukwest",
+                "westcentralus",
+                "westeurope",
+                "westus2"
+            ]
+        },
+        "workspaceName": {
+            "type": "string"
+        },
+        "fhirServiceName": {
+            "type": "string"
+        },
+        "tenantid": {
+            "type": "string"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "storageAccountConfirm" : {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "AccessPolicies": {
+            "type": "array",
+            "defaultValue": []
+        },
+        "smartProxyEnabled": {
+            "type": "bool",
+            "defaultValue": false
+        }
+    },
+    "variables": { 
+        "authority" : "[Concat(parameters('authorityurl'), '/', parameters('tenantid'))]",
+        "createManagedIdentity": true,
+        "managedIdentityType": {
+            "type": "SystemAssigned"
+        },
+        "storageBlobDataContributerRoleId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.HealthcareApis/workspaces",
+            "name": "[parameters('workspaceName')]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "properties": {}
+        },
+       {          
+            "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+            "kind": "fhir-R4",
+            "name": "[concat(parameters('workspaceName'), '/', parameters('fhirServiceName'))]",
+            "apiVersion": "2020-11-01-preview",
+            "location": "[parameters('region')]",
+            "dependsOn": [
+                            "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
+                        ],
+            "tags": {
+                "environmentName": "[parameters('tagName')]"
+            },
+            "properties": {
+                "accessPolicies": "[parameters('AccessPolicies')]",
+                "authenticationConfiguration": {
+                    "authority": "[variables('Authority')]",
+                    "audience": "[concat('https//', parameters('workspaceName'), '-', parameters('fhirServiceName'), '.fhir.azurehealthcareapis.com')]",
+                    "smartProxyEnabled": "[parameters('smartProxyEnabled')]"
+                },
+                "corsConfiguration": {
+                    "allowCredentials": false,
+                    "headers": ["*"],
+                    "maxAge": 1440,
+                    "methods": ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"],
+                    "origins": ["https://localhost:6001"]
+                },
+                "exportConfiguration": {
+                    "storageAccountName": "[parameters('storageAccountName')]"
+                }
+            },
+            "identity": "[if(variables('createManagedIdentity'), variables('managedIdentityType'), json('null'))]"
+        },
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "supportsHttpsTrafficOnly": "true"
+            },
+            "condition": "[parameters('storageAccountConfirm')]",
+            "dependsOn": [
+                "[parameters('fhirServiceName')]"
+            ],
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "tags": {
+                "environmentName": "[parameters('tagName')]",
+                "test-account-rg": "true"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

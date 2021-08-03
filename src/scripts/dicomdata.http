@@ -1,0 +1,61 @@
+### REST Client  
+@dicomresource=yourdicomserviceurl
+@tenantid=yourtenantid
+@clientid=yourclientid
+@clientsecret=yourclientsecret
+@studyid=1.2.826.0.1.3680043.8.498.13230779778012324449356534479549187420
+@seriesid1=1.2.826.0.1.3680043.8.498.45787841905473114233124723359129632652
+@seriesid2=1.2.826.0.1.3680043.8.498.77033797676425927098669402985243398207
+@instanceid111=1.2.826.0.1.3680043.8.498.12714725698140337137334606354172323212
+@instanceid112=1.2.826.0.1.3680043.8.498.47359123102728459884412887463296905395
+@instanceid121=1.2.826.0.1.3680043.8.498.13273713909719068980354078852867170114
+@dicomaadresource=https://dicom.healthcareapis.azure.com/
+
+###get token
+#cli cmdlet
+#token=$(az account get-access-token --resource=https://dicom.healthcareapis.azure.com/ --query accessToken --output tsv) 
+# @name getToken 
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{dicomaadresource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
+
+### post
+#https://github.com/microsoft/dicom-server/blob/main/docs/tutorials/use-dicom-web-standard-apis-with-curl.md
+#https://github.com/microsoft/dicom-server/blob/main/docs/resources/conformance-statement.md
+Post {{dicomresource}}/studies/{{studyid}}
+Content-Type: multipart/related; boundary=MyBoundary
+Accept: application/dicom+json
+Authorization: Bearer {{token}}
+
+--MyBoundary
+Content-Disposition: form-data; 
+Content-Type: application/dicom
+
+< C:\temp\dicomsampleimages\DICOM Sample\red-triangle.dcm
+
+--MyBoundary--
+
+### get
+Get {{dicomresource}}/studies
+Content-Type: multipart/related; transfer-syntax=*
+Accept: application/dicom+json
+Authorization: Bearer {{token}}
+
+###retrieve one or more frames from one instance
+#Note - the response does not display any binary data
+Get {{dicomresource}}/studies/{{studyid}}/series/{{seriesid1}}/instances/{{instanceid112}}/frames/1
+Accept: multipart/related; type="application/octet-stream"; transfer-syntax=1.2.840.10008.1.2.1
+Authorization: Bearer {{token}}
+
+###change feed
+Get {{dicomresource}}/changefeed?includemetadata=false
+Authorization: Bearer {{token}}
+
+

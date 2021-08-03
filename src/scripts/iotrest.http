@@ -1,0 +1,238 @@
+### REST Client  
+@resourcegroupname=xxx
+@workspacename=ws1
+@fhirservicename=fhir11
+@iotconnectorname=iot11
+@iotconnectordestination=output1
+@location=e.g. southcentralus
+@subscriptionid=xxx
+@tenantid=yourtenantid
+@clientid=yourclientid
+@clientsecret=yourclientsecret
+@resource=https://management.azure.com/
+@authorityurl=https://login.microsoftonline.com
+@externaleventhubnamespace=xxx
+@externalfqeventhubnamespace={{externaleventhubnamespace}}.servicebus.windows.net
+@externaleventhubname=xxx
+@externaleventhubconsumergroup=xxx
+@apiversion=2020-11-01-preview
+#@apiversion=2021-03-30-preview
+
+
+### Get an access token
+# @name getToken
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{resource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
+
+### create resource group
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{resourcegroupname}}?api-version=2021-04-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "location": "{{location}}"
+}
+
+### create workspace
+Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "{{workspacename}}",
+    "type": "Microsoft.HealthcareApis/workspaces",
+    "location": "{{location}}",
+    "properties": {
+    }
+}
+
+### create FHIR instance (if it hasn't been created)
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{fhirservicename}}",
+  "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+  "location": "{{location}}",
+  "kind": "fhir-R4",
+  "properties": {
+    "accessPolicies": [],
+    "authenticationConfiguration": {
+      "authority": "{{authorityurl}}/{{tenantid}}",
+      "audience": "https://{{workspacename}}-{{fhirservicename}}.fhir.healthcareapis.com",
+      "smartProxyEnabled": false
+    },
+    "corsConfiguration": {
+      "origins": [
+        "*"
+      ],
+      "headers": [
+        "*"
+      ],
+      "methods": [
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT"
+      ],
+      "maxAge": 1440,
+      "allowCredentials": false
+    },
+    "exportConfiguration": {
+      "storageAccountName": null
+    }
+  }
+}
+
+### create event hubs - namespace (optional)
+#https://docs.microsoft.com/en-us/rest/api/eventhub/preview/namespaces/create-or-update
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventHub/namespaces/{{externaleventhubnamespace}}?api-version=2021-01-01-preview
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sku": {
+    "name": "Standard",
+    "tier": "Standard"
+  },
+  "location": "South Central US",
+  "tags": {
+    "tag1": "value1",
+    "tag2": "value2"
+  }
+}
+
+### create event hubs - event hub (optional)
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventHub/namespaces/{{externaleventhubnamespace}}/eventhubs/{{externaleventhubname}}?api-version=2021-01-01-preview
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "properties": {
+    "messageRetentionInDays": 1,
+    "partitionCount": 1,
+    "status": "Active"}
+}
+
+### create event hubs - consumer group (optional)
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventHub/namespaces/{{externaleventhubnamespace}}/eventhubs/{{externaleventhubname}}/consumergroups/{{externaleventhubconsumergroup}}?api-version=2021-01-01-preview
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "properties": {
+    "userMetadata": "New consumergroup"
+  }
+}
+
+### create IoT Connector
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/iotconnectors/{{iotconnectorname}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{iotconnectorname}}",
+  "type": "Microsoft.HealthcareApis/workspaces/iotconnectors",
+  "location": "{{location}}",
+  "identity": {"type": "SystemAssigned"},
+  "properties": {
+				"ingestionEndpointConfiguration": {
+					"eventHubName": "{{externaleventhubname}}",
+					"consumerGroup": "{{externaleventhubconsumergroup}}",
+					"fullyQualifiedEventHubNamespace": "{{externalfqeventhubnamespace}}"
+                },
+                "deviceMapping": {
+                    "content": {
+                        "templateType": "CollectionContent",
+                        "template": [
+                            {
+                                "templateType": "JsonPathContent",
+                                "template": {
+                                    "typeName": "heartrate",
+                                    "typeMatchExpression": "$..[?(@heartrate)]",
+                                    "deviceIdExpression": "$.deviceid",
+                                    "timestampExpression": "$.measurementdatetime",
+                                    "values": [
+                                        {
+                                            "required": "true",
+                                            "valueExpression": "$.heartrate",
+											"valueName": "Heart rate"
+										}
+									]
+								}
+                            }
+                        ]
+                    }
+                }
+            }
+}
+
+### create IoT Connector Destination (wait until the connector has been fully provisioned)
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/iotconnectors/{{iotconnectorname}}/destinations/{{iotconnectordestination}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{iotconnectordestination}}",
+  "type": "Microsoft.HealthcareApis/workspaces/iotconnectors/destinations",
+  "location": "{{location}}",
+  "properties": {
+				"destinationType": "FhirServer",
+				"resourceIdentityResolutionType": "Create",
+				"fhirServiceResourceId": "/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}",
+				"fhirMapping": {
+                    "content": {
+                        "templateType": "CollectionFhirTemplate",
+                        "template": [
+                            {
+                                "templateType": "CodeValueFhir",
+                                "template": {
+                                    "codes": [
+                                        {
+                                            "code": "8867-4",
+                                            "system": "http://loinc.org",
+                                            "display": "Heart rate"
+                                        }
+                                    ],
+                                    "periodInterval": 60,
+                                    "typeName": "heartrate",
+                                    "value": {
+                                        "defaultPeriod": 5000,
+                                        "unit": "count/min",
+                                        "valueName": "hr",
+                                        "valueType": "SampledData"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+
+ }
+}
+
+
+### Delete IoT Connector Destination (wait until the connector has been fully provisioned)
+DELETE  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/iotconnectors/{{iotconnectorname}}/destinations/{{iotconnectordestination}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json

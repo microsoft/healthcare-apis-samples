@@ -1,14 +1,17 @@
-# Project
+# Healthcare APIs Samples
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repo hosts samples for Healthcare APIs, including FHIR, DICOM, IoT Connector and data related services. The workspace is a top level logical container that resides within a resource group. It must be created first.
 
-As the maintainer of this project, please make a few updates:
+![image.png](/docs/images/workspace.png)
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+All sample scripts have been tested in the Rest Client in Visual Studio, unless otherwise noted.
+
+- [How to deploy the Healthcare APIs](/docs/HowToDeploy.md)
+- [How to load data to the Healthcare APIs](/docs/HowToLoadData.md)
+- [How to access data in the Healthcare APIs](/docs/HowToAccessData.md)
+- [How to convert HL7v2 and C-CDA data](https://github.com/microsoft/vscode-azurehealthcareapis-tools/tree/main/FHIR-Converter)
+- [How to export de-identified data](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/de-identified-export)
+
 
 ## Contributing
 

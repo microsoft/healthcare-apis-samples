@@ -1,0 +1,36 @@
+"filename", "language", "XML", "Markdown", "HTTP", "PowerShell", "Shell Script", "JSON", "C#", "compressionTargetFile", "Docker", "comment", "blank", "total"
+"c:\temp\healthcare-apis-samples\CODE_OF_CONDUCT.md", "Markdown", 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 4, 10
+"c:\temp\healthcare-apis-samples\GeoPol.xml", "XML", 14, 0, 0, 0, 0, 0, 0, 0, 0, 8, 2, 24
+"c:\temp\healthcare-apis-samples\README.md", "Markdown", 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 8, 26
+"c:\temp\healthcare-apis-samples\SECURITY.md", "Markdown", 0, 22, 0, 0, 0, 0, 0, 0, 0, 2, 17, 41
+"c:\temp\healthcare-apis-samples\SUPPORT.md", "Markdown", 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 5, 12
+"c:\temp\healthcare-apis-samples\docs\DeployHealthcareAPIs.md", "Markdown", 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 11, 36
+"c:\temp\healthcare-apis-samples\docs\UseVSCodeExtensionRestClient.md", "Markdown", 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 31, 81
+"c:\temp\healthcare-apis-samples\docs\images\restclient\config.png", "compressionTargetFile", 0, 0, 0, 0, 0, 0, 0, 4154, 0, 0, 59, 4213
+"c:\temp\healthcare-apis-samples\docs\images\restclient\getpatient.png", "compressionTargetFile", 0, 0, 0, 0, 0, 0, 0, 2495, 0, 0, 39, 2534
+"c:\temp\healthcare-apis-samples\docs\images\restclient\install.png", "compressionTargetFile", 0, 0, 0, 0, 0, 0, 0, 3563, 0, 0, 52, 3615
+"c:\temp\healthcare-apis-samples\docs\images\restclient\sendrequest.png", "compressionTargetFile", 0, 0, 0, 0, 0, 0, 0, 247, 0, 0, 1, 248
+"c:\temp\healthcare-apis-samples\src\FHIRDL\Dockerfile", "Docker", 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5
+"c:\temp\healthcare-apis-samples\src\FHIRDL\FHIRDL.csproj", "XML", 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 43
+"c:\temp\healthcare-apis-samples\src\FHIRDL\FHIRDLHelper.cs", "C#", 0, 0, 0, 0, 0, 0, 174, 0, 0, 15, 34, 223
+"c:\temp\healthcare-apis-samples\src\FHIRDL\Program.cs", "C#", 0, 0, 0, 0, 0, 0, 227, 0, 0, 21, 56, 304
+"c:\temp\healthcare-apis-samples\src\FHIRDL\appsettings.json", "JSON", 0, 0, 0, 0, 0, 18, 0, 0, 0, 10, 7, 35
+"c:\temp\healthcare-apis-samples\src\scripts\dicomarm.bash", "Shell Script", 0, 0, 0, 0, 6, 0, 0, 0, 0, 9, 4, 19
+"c:\temp\healthcare-apis-samples\src\scripts\dicomarm.ps1", "PowerShell", 0, 0, 0, 7, 0, 0, 0, 0, 0, 10, 5, 22
+"c:\temp\healthcare-apis-samples\src\scripts\dicomodata.http", "HTTP", 0, 0, 40, 0, 0, 0, 0, 0, 0, 11, 17, 68
+"c:\temp\healthcare-apis-samples\src\scripts\dicomrest.http", "HTTP", 0, 0, 48, 0, 0, 0, 0, 0, 0, 8, 11, 67
+"c:\temp\healthcare-apis-samples\src\scripts\fhirarm.bash", "Shell Script", 0, 0, 0, 0, 10, 0, 0, 0, 0, 9, 4, 23
+"c:\temp\healthcare-apis-samples\src\scripts\fhirarm.ps1", "PowerShell", 0, 0, 0, 11, 0, 0, 0, 0, 0, 10, 6, 27
+"c:\temp\healthcare-apis-samples\src\scripts\fhirdata.http", "HTTP", 0, 0, 196, 0, 0, 0, 0, 0, 0, 11, 12, 219
+"c:\temp\healthcare-apis-samples\src\scripts\fhirrest.http", "HTTP", 0, 0, 75, 0, 0, 0, 0, 0, 0, 8, 11, 94
+"c:\temp\healthcare-apis-samples\src\scripts\githubwebsample.bash", "Shell Script", 0, 0, 0, 0, 8, 0, 0, 0, 0, 7, 6, 21
+"c:\temp\healthcare-apis-samples\src\scripts\importer.bash", "Shell Script", 0, 0, 0, 0, 16, 0, 0, 0, 0, 10, 6, 32
+"c:\temp\healthcare-apis-samples\src\scripts\importer.ps1", "PowerShell", 0, 0, 0, 16, 0, 0, 0, 0, 0, 11, 5, 32
+"c:\temp\healthcare-apis-samples\src\scripts\iotarm.bash", "Shell Script", 0, 0, 0, 0, 11, 0, 0, 0, 0, 9, 3, 23
+"c:\temp\healthcare-apis-samples\src\scripts\iotarm.ps1", "PowerShell", 0, 0, 0, 12, 0, 0, 0, 0, 0, 10, 5, 27
+"c:\temp\healthcare-apis-samples\src\scripts\iotrest.http", "HTTP", 0, 0, 195, 0, 0, 0, 0, 0, 0, 14, 22, 231
+"c:\temp\healthcare-apis-samples\src\templates\dicomtemplate.json", "JSON", 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0, 38
+"c:\temp\healthcare-apis-samples\src\templates\fhirtemplate.json", "JSON", 0, 0, 0, 0, 0, 113, 0, 0, 0, 0, 1, 114
+"c:\temp\healthcare-apis-samples\src\templates\importer.json", "JSON", 0, 0, 0, 0, 0, 283, 0, 0, 0, 0, 0, 283
+"c:\temp\healthcare-apis-samples\src\templates\iottemplate.json", "JSON", 0, 0, 0, 0, 0, 183, 0, 0, 0, 0, 1, 184
+"Total", "-", 48, 128, 554, 46, 51, 635, 401, 10459, 5, 193, 454, 12974

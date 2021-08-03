@@ -1,0 +1,99 @@
+### REST Client  
+@resourcegroupname=xxx
+@workspacename=xxx
+@fhirservicename=xxx
+@location=e.g. southcentralus
+@subscriptionid=xxx
+@tenantid=yourtenantid
+@clientid=yourclientid
+@clientsecret=yourclientsecret
+@resource=https://management.azure.com/
+@authorityurl=https://login.microsoftonline.com
+@apiversion=2020-11-01-preview
+#@apiversion=2021-03-30-preview
+
+### Get an access token
+# @name getToken
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{resource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getToken.response.body.access_token}}
+
+### create resource group
+PUT https://management.azure.com/subscriptions/{{subscriptionid}}/resourcegroups/{{resourcegroupname}}?api-version=2021-04-01
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "location": "{{location}}"
+}
+
+### create workspace
+Put https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "{{workspacename}}",
+    "type": "Microsoft.HealthcareApis/workspaces",
+    "location": "{{location}}",
+    "properties": {
+    }
+}
+
+### create FHIR instance
+PUT  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "{{fhirservicename}}",
+  "type": "Microsoft.HealthcareApis/workspaces/fhirservices",
+  "location": "{{location}}",
+  "kind": "fhir-R4",
+  "identity": {"type": "SystemAssigned"},
+  "properties": {
+    "accessPolicies": [],
+    "authenticationConfiguration": {
+      "authority": "{{authorityurl}}/{{tenantid}}",
+      "audience": "https://{{workspacename}}-{{fhirservicename}}.fhir.azurehealthcareapis.com",
+      "smartProxyEnabled": true
+    },
+    "corsConfiguration": {
+      "origins": [
+        "*"
+      ],
+      "headers": [
+        "*"
+      ],
+      "methods": [
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT"
+      ],
+      "maxAge": 1440,
+      "allowCredentials": false
+    },
+    "exportConfiguration": {
+      "storageAccountName": null
+    }
+  }
+}
+
+### Get FHIR Status
+GET  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/fhirservices/{{fhirservicename}}?api-version={{apiversion}}  
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
