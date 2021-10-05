@@ -4,7 +4,7 @@ The FHIRTDG tool automates the testing process to use Synthea data directly. It 
 
 Download the tool and replace the values in the appsettings.json file. 
 
-`
+```
 {
   //Prerequisite: ndjson files stored in Azure Storage
 
@@ -23,7 +23,7 @@ Download the tool and replace the values in the appsettings.json file.
   "fhircrud4": "Claim,4,8,12,0",
   "fhircrud5": "MedicationRequest,12,5,5,0"
 }
-`
+```
 For example, "fhircrud1" specifies the values for "create", "read", "update","delete' operations for the Patient resource. "fhirresourcetotal" specifies how many FHIR resources you want to work with.
 
 While it is possible specify different CRUD operation values for a given resource, it is recommended that you keep them the same for each resource to avoid possible http errors in the JMeter tool.
