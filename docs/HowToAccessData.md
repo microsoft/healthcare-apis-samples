@@ -19,9 +19,9 @@ Verify that you have grant "FHIR Data Contributor" or other roles to the client 
 ```
 
 - Obtain an access token by clicking on the "Send Request" right above 
-'
+`
     POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
-'
+`
 
 You can now get patient data, export data, create/update patient data, etc.
 
@@ -46,14 +46,14 @@ Verify that you have granted "DICOM Data Owner" or other roles to the client app
 ```
 
 - Obtain an access token by clicking on the "Send Request" right above. 
-'
+`
     POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
-'
+`
 - Alternatively, you can run the cli cmdlet to get an access token. Note that the authority used to obtain the token is the same for all DICOM services. 
   
-'
+`
     az account get-access-token --resource=https://dicom.healthcareapis.azure.com/ --query accessToken --output tsv
-'
+`
 
 You are now ready to send images to the DICOM service and check feed change. Only compatible images can be saved to the service.
 

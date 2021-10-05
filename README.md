@@ -11,6 +11,7 @@ All sample scripts have been tested in the Rest Client in Visual Studio Code, un
 - [How to access data in the Healthcare APIs](/docs/HowToAccessData.md)
 - [How to convert HL7v2 and C-CDA data](https://docs.microsoft.com/en-us/azure/healthcare-apis/azure-api-for-fhir/convert-data)
 - [How to export de-identified data](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/de-identified-export)
+- [How to run performance tests using JMeter](/docs/HowToRunPerformanceTest.md)
 
 
 ## Contributing
