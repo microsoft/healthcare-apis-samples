@@ -1,5 +1,0 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
-COPY bin/Release/net5.0/publish/ FHIRTDG/
-WORKDIR /FHIRTDG
-ENV DOTNET_EnableDiagnostics=0
-ENTRYPOINT ["dotnet", "FHIRTDG.dll"]
