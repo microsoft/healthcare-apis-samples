@@ -71,7 +71,11 @@ Values contained in cvs file, delimited by comma ','.
 
  ### Generate test data 
 
-Use the FHIRTDG (Test Data Generator) tool to download json files stored in Azure storage and generate "create.csv", "read.csv", "update.csv" and "delete.csv" files. Each file contains resource ids for a resource type, e.g. Patient or Claim.
+JMeter allows you to include text or one or multiple json files in HTTP requests. When using text, you can include variables in it and replace it with values stored in the csv files. When using json files, you can include json file names in the csv files which will be loaded during the test.
+
+![image.png](images/jmeter/jmeter-data-options.png)
+
+The FHIR test data generator helps automate the process of generating test data, including json files and csv files containing json file names. It downloads json files stored in Azure storage and generate "create.csv", "read.csv", "update.csv" and "delete.csv" files. Each file contains resource ids for a resource type, e.g. Patient or Claim.
 
 More details on the [FHIRTDG](HowToUseFHIRTDG.md).
 
@@ -112,14 +116,17 @@ Also, you can see the summary report.
 
 ### Run the test locally
 
-You can run small tests locally on your PC or VM in the cloud. The command line below runs the JMeter test plan and generates test results you can view in the browser.
+You can run quick tests locally on your PC or VM in the cloud. 
 
-`
+Locate the files in the jmeter folder.
+Place the jmx file (e.g. [fhirsyntheadata.jmx](/docs/jmeter/fhirsyntheadata.jmx)) and the csv file with variables (e.g. [testvariables.csv](/docs/jmeter/testvariables.csv)) to a local folder (e.g. jsonfiles under jmeter on Windows) and run the command line below.
+
+```
 del jmeterreport.csv
 rmdir /s /q htmlreport
 
-c:\jmeter\bin\jmeter -n -t c:\jmeter\jsonfiles\fhir.jmx -l  c:\jmeter\jsonfiles\jmeterreport.csv -e -o  c:\jmeter\jsonfiles\HtmlReport
-`
+c:\jmeter\bin\jmeter -n -t c:\jmeter\jsonfiles\fhirsyntheadata.jmx -l  c:\jmeter\jsonfiles\jmeterreport.csv -e -o  c:\jmeter\jsonfiles\HtmlReport
+```
 
 When the command line is completed, you can navigate to the  HtmlReport folder, and open the index.html file to view the test results.
 
