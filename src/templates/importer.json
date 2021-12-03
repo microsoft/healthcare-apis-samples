@@ -42,7 +42,7 @@
         },
         "repositoryUrl": {
             "type": "string",
-            "defaultValue": "https://github.com/Microsoft/fhir-server-samples",
+            "defaultValue": "https://github.com/Microsoft/healthcare-apis-samples",
             "metadata": {
                 "description": "Respository to pull source code from. If blank, source code will not be deployed."
             }
