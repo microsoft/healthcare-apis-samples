@@ -1,3 +1,4 @@
+deploymentname=xxx
 resourcegroupname=xxx
 fhirserviceurl=yourfhirserviceurl
 importername=xxx
@@ -19,7 +20,8 @@ importertemplate="src\\templates\\importer.json"
 az group create --name $resourcegroupname --location $location
 
 # deploy the importer as Azure Function
-az deployment group create --resource-group $resourcegroupname --template-file $importertemplate --parameters appNameImporter=$importername fhirServiceUrl=$fhirserviceurl aadFHIRClientId=$fhirclientid aadFHIRClientSecret=$fhirclientsecret
+az deployment group create --name $deploymentname --resource-group $resourcegroupname --template-file $importertemplate --parameters appNameImporter=$importername fhirServiceUrl=$fhirserviceurl aadFHIRClientId=$fhirclientid aadFHIRClientSecret=$fhirclientsecret --rollback-on-error
+#az functionapp delete --name $importername --resource-group $resourcegroupname
 
 # grant the importer Azure Function with access to the storage
 importerstoragename=$importername'sa'
