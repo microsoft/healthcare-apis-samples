@@ -139,7 +139,7 @@
         },
         {
                 "type": "Microsoft.Web/serverfarms",
-                "apiVersion": "2018-02-01",
+                "apiVersion": "2021-02-01",
                 "name": "[variables('hostingPlanName')]",
                 "location": "[variables('location')]",
                 "sku": {
@@ -152,7 +152,7 @@
                     }
         },
         {
-            "apiVersion": "2018-11-01",
+            "apiVersion": "2021-02-01",
             "type": "Microsoft.Web/sites",
             "tags": {
                 "FhirServerSolution": "[parameters('solutionType')]"
