@@ -42,7 +42,7 @@
         },
         "repositoryUrl": {
             "type": "string",
-            "defaultValue": "https://github.com/Microsoft/healthcare-apis-samples",
+            "defaultValue": "https://github.com/microsoft/healthcare-apis-samples",
             "metadata": {
                 "description": "Respository to pull source code from. If blank, source code will not be deployed."
             }
@@ -185,7 +185,7 @@
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~3"
+                            "value": "~2"
                         },
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
