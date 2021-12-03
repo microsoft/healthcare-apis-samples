@@ -242,7 +242,11 @@
                         {
                             "name": "MaxDegreeOfParallelism",
                             "value": "16"
-                        }
+                        },
+                        {
+                            "name": "UUIDtoResourceTypeConversion",
+                            "value": "true"
+                        } 
                     ]
                 }
             },
