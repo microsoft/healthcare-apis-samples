@@ -1,0 +1,43 @@
+###Login, create app registration. Authenticate your workstation/device if required
+#az login
+#az login --scope https://graph.microsoft.com//.default
+#az account show --output table
+#az account subscription list
+#az account tenant list
+#az account subscription show --id xxx
+#az account set --subscription <subscriptionname or id>
+#az provider register --namespace 'Microsoft.HealthcareApis'
+#az provider show --namespace Microsoft.HealthcareApis --query "resourceTypes[?resourceType=='services'].locations"
+#az extension add --name healthcareapis
+
+### Define app registration name, etc.
+appregname=myappregtest1
+clientid=$(az ad app create --display-name $appregname --query appId --output tsv)
+objectid=$(az ad app show --id $clientid --query objectId --output tsv)
+
+#Remove api permissions: disable default exposed scope first
+default_scope=$(az ad app show --id $clientid | jq '.oauth2Permissions[0].isEnabled = false' | jq -r '.oauth2Permissions')
+az ad app update --id $clientid --set oauth2Permissions="$default_scope"
+az ad app update --id $clientid --set oauth2Permissions="[]"
+
+#Add client secret with expiration. The default is one year.
+clientsecretduration=2
+clientsecret=$(az ad app credential reset --id $clientid --append --credential-description mycert2 --years $clientsecretduration --query password --output tsv)
+
+#Update app registration using REST. az ad supports reply-urls only. 
+#https://github.com/Azure/azure-cli/issues/9501
+#redirecttype=spa | web | publicClient
+
+redirecttype=publicClient
+$redirecturl=https://www.getpostman.com/oauth2/callback
+graphurl=https://graph.microsoft.com/v1.0/applications/$objectid
+az rest --method PATCH --uri $graphurl --headers 'Content-Type=application/json' --body '{"'$redirecttype'":{"redirectUris":["'$redirecturl'"]}}'
+
+#Optionally, change the app registration from confidential to public
+az ad app update  --id $clientid  --set publicClient=true 
+
+#Create AAD service principal
+az ad sp create --id $clientid
+
+#Optionally, list client app
+az ad app list --app-id $clientid
