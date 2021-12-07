@@ -1,0 +1,94 @@
+### Role assignment using REST API
+
+
+@clientid=xxx
+@tenantid=xxx
+@clientsecret=xxx
+@subscriptionid=xxx
+@resourcegroupname=xxx
+@workspacename=xxx
+@fhirservicename=xxx
+@dicomservicename=xxx
+@authorityurl=https://login.microsoftonline.com
+@azureresource=https://management.azure.com/
+
+#role definition id, not role names
+#az role definition list --name "FHIR Data Contributor"
+#az role definition list --name "DICOM Data Owner"
+@fhirrolename=5a1fc7df-4bf1-4951-a576-89034ee01acd
+@dicomrolename=58a3b984-7adf-4c20-983a-32417c86fbc8
+
+
+@apiversion=2021-06-01-preview
+@roleapiversion=2021-04-01-preview
+
+#Get service principal id
+@spid=xxx
+
+### Get an access token for management resource
+# @name getAzureToken
+POST https://login.microsoftonline.com/{{tenantid}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&resource={{azureresource}}
+&client_id={{clientid}}
+&client_secret={{clientsecret}}
+
+### Capture access token from getToken request
+@token = {{getAzureToken.response.body.access_token}}
+
+#Alternatively, get access token for the current user
+#az account get-access-token --resource  "https://management.azure.com/"
+#Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+#@token=xxx
+
+### Get GUID using Visual Studio or online tools
+#GET https://www.uuidgenerator.net/api/guid
+
+### define assignment name
+@roleassignmentid=xxx
+
+### Create role assignments
+#Grant user access admin role to the user or a dedicated service principal
+@scope1=/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/services/{{fhirservicename}}
+
+###Send Put request to assign roles - Azure API for FHIR
+PUT https://management.azure.com/{{scope1}}/providers/Microsoft.Authorization/roleAssignments/{{roleassignmentid}}?api-version={{roleapiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "properties": {
+    "roleDefinitionId": "/subscriptions/{{subscriptionid}}/providers/Microsoft.Authorization/roleDefinitions/{{fhirrolename}}",
+    "principalId": "{{spid}}"
+  }
+}
+
+###Send Put request to assign roles - Healthcare APIs (DICOM)
+@scope2=/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/dicomservices/{{dicomservicename}}
+
+PUT https://management.azure.com/{{scope2}}/providers/Microsoft.Authorization/roleAssignments/{{roleassignmentid}}?api-version={{roleapiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "properties": {
+    "roleDefinitionId": "/subscriptions/{{subscriptionid}}/providers/Microsoft.Authorization/roleDefinitions/{{dicomrolename}}",
+    "principalId": "{{spid}}"
+  }
+}
+
+### List services - Azure API for FHIR
+GET  https://management.azure.com/subscriptions/{{subscriptionid}}/providers/Microsoft.HealthcareApis/services?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+### List services -  Healthcare APIs FHIR/DICOM services
+GET  https://management.azure.com/subscriptions/{{subscriptionid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.HealthcareApis/workspaces/{{workspacename}}/dicomservices?api-version={{apiversion}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json

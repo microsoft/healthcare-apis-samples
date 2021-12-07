@@ -1,0 +1,30 @@
+###Role assignment with CLI
+#https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-cli
+#https://docs.microsoft.com/en-us/azure/azure-resource-manager/troubleshooting/error-register-resource-provider?tabs=azure-cli
+
+#Login, create app registration. Authenticate your workstation/device if required
+#az login
+#az login --scope https://graph.microsoft.com//.default
+
+###Define variables
+clientid=xxx
+subscriptionid=xxx
+resourcegroupname=xxx
+fhirrole="FHIR Data Contributor"
+dicomrole="DICOM Data Owner"
+wsname=xxx
+fhirservicename=xxx
+dicomservicename=xxx
+
+#find client app service principal id
+spid=$(az ad sp show --id $clientid --query objectId --output tsv)
+
+###azure api for fhir role assignment
+fhirrolescope="subscriptions/$subscriptionid/resourceGroups/$resourcegroupname/providers/Microsoft.HealthcareApis/services/$fhirservicename"
+az role assignment create --assignee-object-id $spid --assignee-principal-type ServicePrincipal --role "$fhirrole" --scope $fhirrolescope
+
+###healthcare apis role assignment
+fhirrolescope="subscriptions/$subscriptionid/resourceGroups/$resourcegroupname/providers/Microsoft.HealthcareApis/workspaces/$wsname/fhirservices/$fhirservicename"
+dicomrolescope="subscriptions/$subscriptionid/resourceGroups/$resourcegroupname/providers/Microsoft.HealthcareApis/workspaces/$wsname/dicomservices/$dicomservicename"
+az role assignment create --assignee-object-id $spid --assignee-principal-type ServicePrincipal --role "$fhirrole" --scope $fhirrolescope
+az role assignment create --assignee-object-id $spid --assignee-principal-type ServicePrincipal --role "$dicomrole" --scope $dicomrolescope
