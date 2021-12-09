@@ -6,7 +6,11 @@ The Azure function app will monitor a `fhirimport` container in the attached sto
 - For json formatted bundles that are ready to be imported, the conversion option can be disabled by setting the UUIDtoResourceTypeConversion flag to "false".
 - For ndjson formatted bundles, no conversion is performed and the UUIDtoResourceTypeConversion flag is not used.See [sample data here](../../data).
 
-The function can be deployed with the [CLI scripts](../templates/importer.json) template, which will use an Azure Function App (App Service).
+The function can be deployed with the [CLI scripts](../templates/importer.json) template, which will use an Azure Function App (App Service). The deployment scripts allow you to
+- Create a new resource group or use an exising one
+- Create a storage account including two containers, one for uploading files and one for storing files that are invalid and cannot be processed.
+- Create an Azure Function (App Service) and the service plan in which the Azure Function is hosted.
+- Delete the azure function running the command, 'az functionapp delete --name $importername --resource-group $resourcegroupname' and re-deploy the Azure Function after upgrades. With the default incremental deployment mode, the deleted resources will be created. See more details on [Azure Resource Manager deployment modes](https://docs.microsoft.com/azure/azure-resource-manager/templates/deployment-modes). 
 
 It can also be deployed as a container using Azure Container Instances. For this approach, first build the Docker image:
 
