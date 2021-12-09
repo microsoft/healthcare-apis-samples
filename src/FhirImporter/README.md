@@ -2,9 +2,9 @@
 
 The Azure function app will monitor a `fhirimport` container in the attached storage account and ingest patient bundles in json or ndjson format into the FHIR service. 
 
-- For json formatted bundles generated from Synthea, a string conversion from "UUID" to a corresponding resource type is usually required. 
+- For json formatted bundles generated using [Synthea Patient Generator](https://github.com/synthetichealth/synthea), a string conversion from "UUID" to a corresponding resource type is usually required. See [sample data here](../data).
 - For json formatted bundles that are ready to be imported, the conversion option can be disabled by setting the UUIDtoResourceTypeConversion flag to "false".
-- For ndjson formatted bundles, no conversion is performed and the UUIDtoResourceTypeConversion flag is not used.
+- For ndjson formatted bundles, no conversion is performed and the UUIDtoResourceTypeConversion flag is not used.See [sample data here](../data).
 
 The function can be deployed with the [CLI scripts](../templates/importer.json) template, which will use an Azure Function App (App Service).
 
