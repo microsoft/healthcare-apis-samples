@@ -1,0 +1,13 @@
+resourcegroupname=xxx
+location=e.g. eastus2
+workspacename=xxx
+fhirname=xxx
+dicomname=xxx
+iotname=xxx
+bicepfilename=xxx.bicep
+#tenantid=xxx
+subscriptionid=$(az account show --query id --output tsv)
+tenantid=$(az account show --subscription $subscriptionid --query tenantId --output tsv)
+
+az deployment group create --resource-group $resourcegroupname --template-file $bicepfilename --parameters workspaceName=$workspacename fhirName=$fhirname dicomName=$dicomname iotName=$iotname tenantId=$tenantid
+
