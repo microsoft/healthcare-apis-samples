@@ -1,10 +1,11 @@
+//Define parameters
 param workspaceName string
 param fhirName string
 param dicomName string
 param iotName string
-
 param tenantId string
 
+//Define variables
 var fhirservicename = '${workspaceName}/${fhirName}'
 var dicomservicename = '${workspaceName}/${dicomName}'
 var iotconnectorname = '${workspaceName}/${iotName}'
@@ -35,7 +36,7 @@ resource exampleFHIR 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-0
     type: 'SystemAssigned'
   }
   dependsOn: [
-    exampleWorkspace
+    exampleWorkspace  //exampleExistingWorkspace
   ]
   properties: {
     accessPolicies: []
@@ -47,7 +48,7 @@ resource exampleFHIR 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-0
     }
 }
 
-//Use an existing workspace
+//Use an existing FHIR service
 // resource exampleExistingFHIR 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-01-preview' existing = {
 //   name: fhirservicename
 // }
@@ -62,6 +63,11 @@ resource exampleDICOM 'Microsoft.HealthcareApis/workspaces/dicomservices@2021-06
   properties: {}
 }
 
+//Use an existing DICOM service
+// resource exampleExistingDICOM 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-01-preview' existing = {
+//   name: dicomservicename
+// }
+
 //Create IoT connector
 resource exampleIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors@2021-06-01-preview' = {
   name: iotconnectorname
@@ -75,9 +81,9 @@ resource exampleIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors@2021-06-0
   ]
   properties: {
     ingestionEndpointConfiguration: {
-      eventHubName: 'aaeventhub1'
-      consumerGroup: 'aaeventhubcg1'
-      fullyQualifiedEventHubNamespace: 'aaeventhubns1.servicebus.windows.net'
+      eventHubName: 'xxx'
+      consumerGroup: 'xxx'
+      fullyQualifiedEventHubNamespace: 'xxx.servicebus.windows.net'
             }
     deviceMapping: {
     content: {
@@ -105,49 +111,52 @@ resource exampleIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors@2021-06-0
       }
     }
 
-  // resource existingIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors/fhirdestinations@2021-06-01-preview' existing = {
-  //   name: iotconnectorname
-  // }
 
-  resource exampleIoTDestination 'Microsoft.HealthcareApis/workspaces/iotconnectors/fhirdestinations@2021-06-01-preview'  = {
-    name:   iotdestinationname
-    location: resourceGroup().location
-    dependsOn: [
-      exampleIoT
-      //existingIoT
-    ]
-    properties: {
-      resourceIdentityResolutionType: 'Create'
-      fhirServiceResourceId: exampleFHIR.id //exampleExistingFHIR.id
-      fhirMapping: {
-                  content: {
-                      templateType: 'CollectionFhirTemplate'
-                      template: [
-                          {
-                              templateType: 'CodeValueFhir'
-                              template: {
-                                  codes: [
-                                      {
-                                          code: '8867-4'
-                                          system: 'http://loinc.org'
-                                          display: 'Heart rate'
-                                      }
-                                  ]
-                                  periodInterval: 60
-                                  typeName: 'heartrate'
-                                  value: {
-                                      defaultPeriod: 5000
-                                      unit: 'count/min'
-                                      valueName: 'hr'
-                                      valueType: 'SampledData'
-                                  }
-                              }
-                          }
-                      ]
-                  }
-              }
-          }
-  }
+//Use an existing IoT 
+// resource exampleExistingIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors/fhirdestinations@2021-06-01-preview' existing = {
+//   name: iotconnectorname
+// }
+
+//Create IoT destination
+resource exampleIoTDestination 'Microsoft.HealthcareApis/workspaces/iotconnectors/fhirdestinations@2021-06-01-preview'  = {
+  name:   iotdestinationname
+  location: resourceGroup().location
+  dependsOn: [
+    exampleIoT
+    //exampleExistingIoT
+  ]
+  properties: {
+    resourceIdentityResolutionType: 'Create'
+    fhirServiceResourceId: exampleFHIR.id //exampleExistingFHIR.id
+    fhirMapping: {
+                content: {
+                    templateType: 'CollectionFhirTemplate'
+                    template: [
+                        {
+                            templateType: 'CodeValueFhir'
+                            template: {
+                                codes: [
+                                    {
+                                        code: '8867-4'
+                                        system: 'http://loinc.org'
+                                        display: 'Heart rate'
+                                    }
+                                ]
+                                periodInterval: 60
+                                typeName: 'heartrate'
+                                value: {
+                                    defaultPeriod: 5000
+                                    unit: 'count/min'
+                                    valueName: 'hr'
+                                    valueType: 'SampledData'
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+}
 
 
 
