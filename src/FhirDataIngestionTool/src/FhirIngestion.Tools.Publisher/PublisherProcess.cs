@@ -21,7 +21,7 @@
     using Polly.Contrib.WaitAndRetry;
 
     /// <summary>
-    /// The process for Publishing FHIR (ND)JSON files to Azure API for FHIR.
+    /// The process for Publishing FHIR (ND)JSON files to Healthcare APIs.
     /// Major Source: https://github.com/hansenms/FhirLoader.
     /// </summary>
     public class PublisherProcess : BaseProcess, IDisposable

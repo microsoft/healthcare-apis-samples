@@ -117,7 +117,7 @@ These extensions are added to all individual resources in the bundle, you can de
 
 ## Posting Bundles files to FHIR server
 
-We're using `Azure API for FHIR` as a server. And Azure API for FHIR is a REST API. So we're using `POST` method to post the bundle file to FHIR server. This API is currently not supporting `transaction` method. Instead of `transaction` we use `batch` method. The difference between both is on how the data will be processed:
+We're using `Healthcare APIs` as a server. And Healthcare APIs is a REST API. So we're using `POST` method to post the bundle file to FHIR server. This API is currently not supporting `transaction` method. Instead of `transaction` we use `batch` method. The difference between both is on how the data will be processed:
 
 * In the case of `transaction`, if one element fails, all the bundle fails
 * In the case of `batch`, it will upload anything valid and won't upload the failed one
