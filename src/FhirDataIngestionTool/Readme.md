@@ -239,3 +239,12 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Contributors of the tool
+
+* [Bart Jansen](https://github.com/bart-jansen)
+* [Carlos Sardo](https://github.com/CarlosSardo)
+* [Ibrahim Kivanc](https://github.com/ikivanc)
+* [Jan Tielens](https://github.com/jantielens)
+* [Laurent Ellerbach](https://github.com/Ellerbach)
+* [Martin Tirion](https://github.com/mtirionMSFT)
