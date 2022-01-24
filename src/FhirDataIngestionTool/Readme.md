@@ -224,6 +224,7 @@ The configuration file is a JSON file and looks like this:
 * This tool only works with local data, it's not using blob storage.
 * `Convert`, `Anonymize` and `Publish` steps are not configurable right now, if you want to remove any steps you need to handle changes in the code.
 * When you use large dataset with Parquet and CSV files, the tool will take a long time to process. You need to consider the size of the dataset and the number of files.
+* You need your Azure AD application to be able to access the FHIR server.
 * Bundle size is limited to 500 items.
 * All tests are done on `Windows` and `Linux`
 
