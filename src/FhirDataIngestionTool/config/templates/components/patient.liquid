@@ -40,7 +40,7 @@
                 "value": "{{ patient.phone }}"
             }
         ],
-        "gender": "other",
+        "gender": "{% include 'data-converters/gender', gender: patient.gender -%}",
         "birthDate": "{{ "now" | date: "%Y-%m-%d" }}",
         "address": [
             {
