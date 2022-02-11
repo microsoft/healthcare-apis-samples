@@ -22,7 +22,7 @@ You can deploy each service through the Azure portal, or using scripts that you 
 - [PowerShell script](/src/scripts/fhirarm.ps1)
 - [CLI script](/src/scripts/fhirarm.bash)
 - [REST API call](/src/scripts/fhirrest.http)
-- [fhir template](/src/templates/workspacetemplate.json)
+- [fhir template](/src/templates/fhirtemplate.json)
 
 Note: To deploy the FHIR service only, you can remove the workspace resource and the dependency on it in the template.
 
