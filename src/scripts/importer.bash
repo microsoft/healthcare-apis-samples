@@ -1,6 +1,7 @@
 deploymentname=xxx
 resourcegroupname=xxx
-fhirserviceurl=yourfhirserviceurl
+workspacename=xxx
+fhirservicename=xxx
 importername=xxx
 location=e.g. southcentralus
 tenantid=yourtenantid
@@ -9,6 +10,11 @@ tenantid=yourtenantid
 fhirclientid=yourclientid
 fhirclientsecret=yourclientsecret
 importertemplate="src\\templates\\importer.json"
+
+fhirserviceurl="https://$workspacename-$fhirservicename.fhir.azurehealthcareapis.com"
+#importertemplate="src\\templates\\importer.json"
+importertemplate=https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/main/src/templates/importer.json
+
 
 ##login to azure
 #az login

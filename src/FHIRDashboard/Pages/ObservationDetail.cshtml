@@ -1,0 +1,26 @@
+﻿@page
+@model ObservationDetailModel
+@using Hl7.Fhir.Model;
+@using Hl7.Fhir.ElementModel;
+@using Hl7.Fhir.Serialization;
+@using Newtonsoft.Json.Linq;
+@using Formatting = Newtonsoft.Json.Formatting;
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewData["ObservationDetail"] != null)
+{
+    var pData = ((Observation)ViewData["ObservationDetail"]);
+
+    var pDataJson = pData.ToJson();
+    var jsonFormatted = JValue.Parse(pDataJson).ToString(Formatting.Indented);
+
+    <div style="float: left; font-size:  16px;  width: 800px; word-break: break-all; word-wrap: break-word;">
+
+        <pre>
+        @jsonFormatted
+
+    </pre>
+    </div>
+
+}

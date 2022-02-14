@@ -93,14 +93,14 @@ resource exampleIoT 'Microsoft.HealthcareApis/workspaces/iotconnectors@2021-06-0
                       templateType: 'JsonPathContent'
                       template: {
                               typeName: 'heartrate'
-                              typeMatchExpression: '$..[?(@heartrate)]'
-                              deviceIdExpression: '$.deviceid'
-                              timestampExpression: '$.measurementdatetime'
+                              typeMatchExpression: '$..[?(@heartRate)]'
+                              deviceIdExpression: '$.deviceId'
+                              timestampExpression: '$.endDate'
                               values: [
                                 {
                                       required: 'true'
-                                      valueExpression: '$.heartrate'
-                                      valueName: 'Heart rate'
+                                      valueExpression: '$.heartRate'
+                                      valueName: 'hr'
                                       }
                                       ]
                                 }

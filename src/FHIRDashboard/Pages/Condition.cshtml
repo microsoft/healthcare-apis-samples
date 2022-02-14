@@ -1,0 +1,35 @@
+﻿@page
+@model ConditionModel
+@using Hl7.Fhir.Model;
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewData["Conditions"] != null)
+{
+
+    <table>
+        <tr>
+            <th width="10%">Id</th>
+            <th width="30%">RecordedDate</th>
+            <th width="50%">Description</th>
+            <th width="10%">Status</th>
+
+        </tr>
+        @foreach (var c in ViewData["Conditions"] as IList<Condition>)
+        {
+    <tr>
+        
+        <td>
+            <a asp-page="/ConditionDetail" asp-route-id=@c.Id target="_blank">
+                <img src="../images/device.jpg" width=20 asp-append-version="true">
+            </a>
+
+        </td>
+        <td>@c.RecordedDate</td>
+        <td>@c.Code.Text</td>
+        <td>@c.ClinicalStatus.Coding[0].Code</td>
+
+    </tr>
+        }
+    </table>
+}

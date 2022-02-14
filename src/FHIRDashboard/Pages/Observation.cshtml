@@ -1,0 +1,44 @@
+﻿@page
+@model ObservationModel
+@using Hl7.Fhir.Model;
+@using Hl7.Fhir.ElementModel;
+@using Hl7.Fhir.Serialization;
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewData["Observations"] != null)
+{
+
+    <table>
+        <tr>
+            <th width="10%">Id</th>
+            <th width="20%">Issued</th>
+            <th width="30%">Patient</th>
+
+        </tr>
+        @foreach (var o in ViewData["Observations"] as IList<Observation>)
+        {
+            
+    <tr>
+        <td>
+            <a asp-page="/ObservationDetail" asp-route-id=@o.Id target="_blank">
+                <img src="../images/observation.jpg" width=20 asp-append-version="true">
+            </a>
+        </td>
+        <td>
+            @o.Issued.Value.UtcDateTime.ToString("G");
+
+        </td>
+        <td>
+            @if (@o.Subject != null)
+            {
+                @o.Subject.Reference.ToString().Substring(8);
+            }
+
+        </td>
+
+
+        </tr>
+            }
+    </table>
+}
