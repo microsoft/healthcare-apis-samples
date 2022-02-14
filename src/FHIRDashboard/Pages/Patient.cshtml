@@ -1,0 +1,42 @@
+﻿@page
+@model PatientModel
+@using Hl7.Fhir.Model;
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewData["Patients"] != null)
+{
+    //var pData = ViewData["Patients"] as System.Data.DataTable;
+
+    <table>
+        <tr>
+            <th width="10%">Id</th>
+            <th width="20%">Last Name</th>
+            <th width="20%">First Name</th>
+            <th width="30%">Birth Date</th>
+            <th width="20%">Gender</th>
+            @*<th>Phone</th>*@
+        </tr>
+        @foreach (var p in ViewData["Patients"] as IList<Patient>)
+        {
+            //var pidurl = "./PatientDetail?" + @p.Id;
+            <tr>
+                <td><a asp-page="/PatientDetail" asp-route-id=@p.Id target="_blank">
+                        <img src="../images/azurefhir.jpg" width=20 asp-append-version="true">
+                    </a>
+                
+                </td>
+                <td>@p.Name[0].Family</td>
+                <td>@p.Name[0].GivenElement[0]</td>
+                <td>@p.BirthDate</td>
+                <td>@p.Gender</td>
+                @*<td>
+                    @p.Telecom.Where(
+               c => c.System == ContactPoint.ContactPointSystem.Phone
+               && c.Use == ContactPoint.ContactPointUse.Home).FirstOrDefault().Value
+            </td>*@
+        </tr>
+    }
+    </table>
+
+}

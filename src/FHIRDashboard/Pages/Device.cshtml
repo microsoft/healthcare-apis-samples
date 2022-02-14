@@ -1,0 +1,46 @@
+﻿@page
+@model DeviceModel
+@using Hl7.Fhir.Model;
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewData["Devices"] != null)
+{
+
+    <table>
+        <tr>
+            <th width="10%">Id</th>
+            <th width="30%">Name</th>
+            <th width="35%">Patient Reference</th>
+            <th width="15%">ExpirationDate</th>
+            <th width="10%">Identifier</th>
+
+        </tr>
+        @foreach (var d in ViewData["Devices"] as IList<Device>)
+        {
+    <tr>
+        
+        <td>
+            <a asp-page="/DeviceDetail" asp-route-id=@d.Id target="_blank">
+                <img src="../images/device.jpg" width=20 asp-append-version="true">
+            </a>
+
+        </td>
+        <td>
+            @if (d.DeviceName.Count > 0)
+            {
+                @d.DeviceName[0].Name
+            }
+        </td>
+        <td>@d.Patient.ReferenceElement</td>
+        <td>@d.ExpirationDate </td>
+        <td>
+            @if (d.Identifier.Count > 0)
+            {
+                @d.Identifier[0].Value
+            }
+        </td>
+    </tr>
+        }
+    </table>
+}

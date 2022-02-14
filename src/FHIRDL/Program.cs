@@ -353,7 +353,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                     var _heartrate = new Random().Next(70, 100);
 
                     //https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
-                    _eventdata = $"{{\"heartrate\": \"{_heartrate}\",\"measurementdatetime\": \"{DateTime.Now.ToUniversalTime().ToString("O")}\",\"deviceid\": \"{_deviceid}\",\"patientid\": \"{_patientid}\"}}";
+                    _eventdata = $"{{\"heartRate\": \"{_heartrate}\",\"endDate\": \"{DateTime.Now.ToUniversalTime().ToString("O")}\",\"deviceId\": \"{_deviceid}\",\"patientId\": \"{_patientid}\"}}";
 
                     if (!eventBatch.TryAdd(new EventData(Encoding.UTF8.GetBytes(_eventdata))))
                     {
