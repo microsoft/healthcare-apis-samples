@@ -81,7 +81,7 @@ namespace HealthcareAPIsSamples
             try
             {
                 JObject _objContent = JObject.Parse(content);
-                if (_objContent == null || _objContent["entry"] == null || ((string)_objContent["resourceType"] != "Bundle") || ((string)_objContent["type"] != "transaction"))
+                if (_objContent == null || _objContent["entry"] == null || ((string)_objContent["resourceType"] != "Bundle") || (((string)_objContent["type"] != "transaction") && ((string)_objContent["type"] != "batch")))
                 {
                     throw new Exception("json file is empty, or missing bundle, entry block, transaction");
                 }
