@@ -194,7 +194,6 @@ namespace HealthcareAPIsSamples.FHIRDL
 
                 //reset counters
                 _intFileCount = 1;
-                int _intResourceCount = 0;
                 _retry = 1;
                 _fhirLoaderResponse = null;
 
@@ -409,7 +408,6 @@ namespace HealthcareAPIsSamples.FHIRDL
                             }
                             else
                             {
-                                _intResourceCount++;
                                 //Console.WriteLine($"Uploaded /{resource_type}/{id}");
                             }
                         },
@@ -426,7 +424,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                         actionBlock.Complete();
                         actionBlock.Completion.Wait();
 
-                        Console.WriteLine($"Processing file #{_intFileCount} Total {entries.Count} Actual {_intResourceCount} {blobItem.Name}");
+                        Console.WriteLine($"File #{_intFileCount} Total {entries.Count}: {blobItem.Name}");
 
                         _intFileCount++;
 
