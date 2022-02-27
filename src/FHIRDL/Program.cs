@@ -291,6 +291,7 @@ namespace HealthcareAPIsSamples.FHIRDL
 
                     var streamReader = new StreamReader(download.Content);
                     // Read ndjson file line by line
+                    entries.Clear();
                     while (!streamReader.EndOfStream)
                     {
                         // Assuming no conversion required for ndjson files
