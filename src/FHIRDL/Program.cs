@@ -1,4 +1,4 @@
-﻿// -------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // -------------------------------------------------------------------------------------------------
@@ -16,6 +16,12 @@ using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using System.Linq;
 using System.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Polly;
+using System.Threading.Tasks.Dataflow;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 namespace HealthcareAPIsSamples.FHIRDL
 {
@@ -35,6 +41,7 @@ namespace HealthcareAPIsSamples.FHIRDL
         static int _fhirFileCountStart;
         static int _fhirFileCountEnd;
         static int _fhirMaxRetry;
+
 
         static string _fhiraudience;
         static string _fhirtenantId;
@@ -65,16 +72,22 @@ namespace HealthcareAPIsSamples.FHIRDL
 
         static int _jsonfilecount = 1;
         static int _retry = 1;
+        static int _intMaxDegreeOfParallelism;
 
         static string menuOption = "";
         static bool menuOptionLoop = true;
 
+        static Uri fhirServerUrl;
+        static readonly HttpClient httpClient;
+        static JArray entries;
+
         static async System.Threading.Tasks.Task Main(string[] args)
         {
+
             var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
 
             //Get FHIR data source settings
             _bundleStorageConnection = config["bundlestorageconnection"];
@@ -90,6 +103,8 @@ namespace HealthcareAPIsSamples.FHIRDL
             //_fhirFileCountStart = int.Parse(config["filecountstart"]);
             //_fhirFileCountEnd = int.Parse(config["filecountend"]);
             _fhirMaxRetry = int.Parse(config["maxretry"]);
+            _intMaxDegreeOfParallelism = int.Parse(config["MaxDegreeOfParallelism"]);
+
 
             _fhiraudience = config["fhiraudience"];
             _fhirtenantId = config["fhirtenantid"];
@@ -98,7 +113,9 @@ namespace HealthcareAPIsSamples.FHIRDL
             _fhirlogin = config["fhirloginauthority"];
             _authority = _fhirlogin + "/" + _fhirtenantId;
 
-            _streventhubconnection= config["eventhubconnection"];
+            fhirServerUrl = new Uri(_fhiraudience);
+
+            _streventhubconnection = config["eventhubconnection"];
             _streventhubname = config["eventhubname"];
             _deviceid = config["deviceid"];
             _patientid = config["patientid"];
@@ -171,138 +188,122 @@ namespace HealthcareAPIsSamples.FHIRDL
 
         static private async Task ProcessSyntheaData(bool convertjson)
         {
-            //reset counters
-            _jsonfilecount = 1;
-            _retry = 1;
-            _fhirLoaderResponse = null;
-
-            //get input data
-            Console.WriteLine($"\nAzure Storage folder where json files are stored, e.g. fhir");
-            _fhirFileFilter = Console.ReadLine();
-
-            if (_fhirFileFilter == "exit")
+            try
             {
-                return;
-            }
+                entries = new JArray();
 
-            Console.WriteLine($"\nThe file position to start with (integer)");
-            _fhirFileCountStart = int.Parse(Console.ReadLine());
-            Console.WriteLine($"\nThe file position to end with (integer)");
-            _fhirFileCountEnd = int.Parse(Console.ReadLine());
+                //reset counters
+                _jsonfilecount = 1;
+                _retry = 1;
+                _fhirLoaderResponse = null;
 
-            var blobContainerClientConvert = GetContainerReference(_bundleStorageConnection, _bundleContainerconvert, true);
-            var blobContainerClient = GetContainerReference(_bundleStorageConnection, _bundleContainer, false);
-            
-            if (convertjson)
-            {
-                Console.WriteLine($"\nConverting FHIR data...");
-            }
-            else
-            {
-                Console.WriteLine($"\nUploading FHIR data to {_fhiraudience}...");
-                //use the container where files have been converted
-                blobContainerClient = blobContainerClientConvert;
+                //get input data
+                Console.WriteLine($"\nEnter Azure Storage folder name where json files are stored, e.g. fhir");
+                _fhirFileFilter = Console.ReadLine();
 
-                if (_fhirserversecurity)
+                if (_fhirFileFilter == "exit")
                 {
-                    Console.WriteLine($"Get AAD access token");
-                    _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(_fhirFileFilter))
-                Console.Write($"Accessing files in storage folder {_fhirFileFilter}. ");
-
-            Console.Write($"Starting at file #{_fhirFileCountStart} ending at file #{_fhirFileCountEnd}. ");
-
-            Console.WriteLine($"Please wait...\n");
-
-            
-            // List all blobs in the container
-            await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
-                {
-                //Skip json files not included by the filter
-                if (!blobItem.Name.Contains(_fhirFileFilter))
-                    continue;
-
-                //Resume loading
-                if (_jsonfilecount < _fhirFileCountStart)
-                {
-                    _jsonfilecount++;
-                    continue;
-                }
-
-                //Stop loading 
-                if (_jsonfilecount > _fhirFileCountEnd)
-                {
-                    Console.WriteLine($"All files within the specified range {_fhirFileCountStart} - {_fhirFileCountEnd} have been processed \n");
                     return;
                 }
-                
-                Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
 
-                //// begin test only
-                //_jsonfilecount++;
-                //continue;
-                ////end test only
+                Console.WriteLine($"\nEnter the file position in integer (where to start)");
+                _fhirFileCountStart = int.Parse(Console.ReadLine());
+                Console.WriteLine($"\nEnter the file position in integer (where to end)");
+                _fhirFileCountEnd = int.Parse(Console.ReadLine());
 
-                BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
-
-                ////begin delete files
-                //Console.WriteLine($"Delete file #{_jsonfilecount} {blobItem.Name}");
-                //await blobClient.DeleteAsync();
-                //_jsonfilecount++;
-                //continue;
-                ////end delete files
-
-                BlobDownloadInfo download = await blobClient.DownloadAsync();
-
-                ////begin copy files to a new folder
-                //var newPrefix = "newfoldname";
-                //var item = blobItem.Name;
-                //var newBlobItemName = newPrefix + item.Substring(item.IndexOf("/"));
-                //Console.WriteLine($"New file #{_jsonfilecount} {newBlobItemName}");
-                //BlobClient destBlob = blobContainerClient.GetBlobClient(newBlobItemName);
-                //await destBlob.UploadAsync(download.Content, true);
-                //_jsonfilecount++;
-                //continue;
-                ////end copy files to a new folder
-
-                var streamReader = new StreamReader(download.Content);
+                var blobContainerClientConvert = GetContainerReference(_bundleStorageConnection, _bundleContainerconvert, true);
+                var blobContainerClient = GetContainerReference(_bundleStorageConnection, _bundleContainer, false);
 
                 if (convertjson)
                 {
-                    //read the entire json file when converting json files
-                    _content = await streamReader.ReadToEndAsync();
-                    _fhirLoaderResponse = FHIRDLHelper.ConvertJsonFiles(_content);
-
-                    while (_fhirLoaderResponse is null)
-                    {
-                        if (_retry > _fhirMaxRetry)
-                        {
-                            Console.WriteLine($"Retry has exceeded the max limit. Exit now.");
-                            break;
-                        }
-
-                        Console.WriteLine($"*******************  Retry due to error *******************");
-
-                        _fhirLoaderResponse = FHIRDLHelper.ConvertJsonFiles(_content);
-                        _retry++;
-                    }
-
-                    //copy the json bundle file to a new storage container
-                    byte[] byteArray = Encoding.UTF8.GetBytes(_fhirLoaderResponse);
-                    MemoryStream stream = new MemoryStream(byteArray);
-                    BlobClient blobClientConvert = blobContainerClientConvert.GetBlobClient(blobItem.Name + ".ndjson");
-                    await blobClientConvert.UploadAsync(stream, true);
+                    Console.WriteLine($"\nConverting FHIR data...");
                 }
                 else
                 {
+                    Console.WriteLine($"\nUploading FHIR data to {_fhiraudience}...");
+                    //use the container where files have been converted
+                    blobContainerClient = blobContainerClientConvert;
+
+                    if (_fhirserversecurity)
+                    {
+                        Console.WriteLine($"Get AAD access token");
+                        _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(_fhirFileFilter))
+                    Console.Write($"Accessing files in storage folder {_fhirFileFilter}. ");
+
+                Console.Write($"Starting at file #{_fhirFileCountStart} ending at file #{_fhirFileCountEnd}. ");
+
+                Console.WriteLine($"Please wait...\n");
+
+
+                // List all blobs in the container
+                await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
+                {
+                    //Skip json files not included by the filter
+                    if (!blobItem.Name.Contains(_fhirFileFilter))
+                        continue;
+
+                    //Resume loading
+                    if (_jsonfilecount < _fhirFileCountStart)
+                    {
+                        _jsonfilecount++;
+                        continue;
+                    }
+
+                    //Stop loading 
+                    if (_jsonfilecount > _fhirFileCountEnd)
+                    {
+                        Console.WriteLine($"All files within the specified range {_fhirFileCountStart} - {_fhirFileCountEnd} have been processed \n");
+                        return;
+                    }
+
+                    Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
+
+                    //// begin test only
+                    //_jsonfilecount++;
+                    //continue;
+                    ////end test only
+
+                    BlobClient blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+
+                    ////begin delete files
+                    //Console.WriteLine($"Delete file #{_jsonfilecount} {blobItem.Name}");
+                    //await blobClient.DeleteAsync();
+                    //_jsonfilecount++;
+                    //continue;
+                    ////end delete files
+
+                    BlobDownloadInfo download = await blobClient.DownloadAsync();
+
+                    ////begin copy files to a new folder
+                    //var newPrefix = "newfoldname";
+                    //var item = blobItem.Name;
+                    //var newBlobItemName = newPrefix + item.Substring(item.IndexOf("/"));
+                    //Console.WriteLine($"New file #{_jsonfilecount} {newBlobItemName}");
+                    //BlobClient destBlob = blobContainerClient.GetBlobClient(newBlobItemName);
+                    //await destBlob.UploadAsync(download.Content, true);
+                    //_jsonfilecount++;
+                    //continue;
+                    ////end copy files to a new folder
+
+                    var streamReader = new StreamReader(download.Content);
+                    // Read ndjson file line by line
                     while (!streamReader.EndOfStream)
                     {
-                        //read one line at a time and process it
-                        _content = await streamReader.ReadLineAsync();
-                        _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, _content);
+                        // Assuming no conversion required for ndjson files
+                        var linecontent = await streamReader.ReadLineAsync();
+                        var linejobject = JObject.Parse(linecontent);
+                        entries.Add(linejobject);
+                    }
+
+                    if (convertjson)
+                    {
+                        //read the entire json file
+                        _content = await streamReader.ReadToEndAsync();
+                        _fhirLoaderResponse = FHIRDLHelper.ConvertJsonFiles(_content);
 
                         while (_fhirLoaderResponse is null)
                         {
@@ -314,26 +315,125 @@ namespace HealthcareAPIsSamples.FHIRDL
 
                             Console.WriteLine($"*******************  Retry due to error *******************");
 
-                            if (_fhirserversecurity)
-                            {
-                                if (FHIRDLHelper.isTokenExpired(_accesstoken))
-                                    _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
-                                Console.WriteLine($"Get a new AAD access token");
-                            }
-
-                            _fhirLoaderResponse = await FHIRDLHelper.LoadFHIRResource(_fhiraudience, _accesstoken, _content);
+                            _fhirLoaderResponse = FHIRDLHelper.ConvertJsonFiles(_content);
                             _retry++;
                         }
+
+                        //copy the json bundle file to a new storage container
+                        byte[] byteArray = Encoding.UTF8.GetBytes(_fhirLoaderResponse);
+                        MemoryStream stream = new MemoryStream(byteArray);
+                        BlobClient blobClientConvert = blobContainerClientConvert.GetBlobClient(blobItem.Name + ".ndjson");
+                        await blobClientConvert.UploadAsync(stream, true);
+                    }
+                    else
+                    {
+                        //load data to the FHIR server
+
+                        //Get a new token if expired
+                        if (_fhirserversecurity)
+                        {
+                            if (FHIRDLHelper.isTokenExpired(_accesstoken))
+                            {
+                                _accesstoken = await FHIRDLHelper.GetAADAccessToken(_authority, _fhirclientId, _fhirclientSecret, _fhiraudience, false);
+                                Console.WriteLine($"Get a new AAD access token");
+                            }
+                        }
+
+                        var actionBlock = new ActionBlock<int>(async i =>
+                        {
+
+                            string resource_type = "";
+                            string id = "";
+                            string entry_json = "";
+
+                            entry_json = ((JObject)entries[i]).ToString();
+                            if (string.IsNullOrEmpty(entry_json))
+                            {
+                                Console.WriteLine("No 'resource' section found in JSON document");
+                                throw new FhirImportException("'resource' not found or empty");
+                            }
+
+                            resource_type = (string)((JObject)entries[i])["resourceType"];
+                            id = (string)((JObject)entries[i])["id"];
+
+                            var randomGenerator = new Random();
+
+                            Thread.Sleep(TimeSpan.FromMilliseconds(randomGenerator.Next(50)));
+
+                            if (string.IsNullOrEmpty(resource_type))
+                            {
+                                Console.WriteLine("No resource_type found.");
+                                throw new FhirImportException("No resource_type in resource.");
+                            }
+
+                            StringContent content = new StringContent(entry_json, Encoding.UTF8, "application/json");
+                            var pollyDelays =
+                                    new[]
+                                    {
+                                TimeSpan.FromMilliseconds(2000 + randomGenerator.Next(50)),
+                                TimeSpan.FromMilliseconds(3000 + randomGenerator.Next(50)),
+                                TimeSpan.FromMilliseconds(5000 + randomGenerator.Next(50)),
+                                TimeSpan.FromMilliseconds(8000 + randomGenerator.Next(50))
+                                    };
+
+                            HttpResponseMessage uploadResult = await Policy
+                                .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
+                                .WaitAndRetryAsync(pollyDelays, (result, timeSpan, retryCount, context) =>
+                                {
+                                    Console.WriteLine($"{_jsonfilecount}: {resource_type}/{id}: Request failed with {result.Result.StatusCode}. Waiting {timeSpan} before next retry. Retry attempt {retryCount}");
+                                })
+                                .ExecuteAsync(() =>
+                                {
+                                    //Console.WriteLine($"File#{_jsonfilecount}: {resource_type}/{id}");
+
+                                    var message = string.IsNullOrEmpty(id)
+                                            ? new HttpRequestMessage(HttpMethod.Post, new Uri(fhirServerUrl, $"/{resource_type}"))
+                                            : new HttpRequestMessage(HttpMethod.Put, new Uri(fhirServerUrl, $"/{resource_type}/{id}"));
+
+                                    message.Content = content;
+                                    message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accesstoken);
+
+                                    return _client.SendAsync(message);
+
+                                });
+
+                            if (!uploadResult.IsSuccessStatusCode)
+                            {
+                                string resultContent = await uploadResult.Content.ReadAsStringAsync();
+                                Console.WriteLine(resultContent);
+
+                                // Throwing a generic exception here. This will leave the blob in storage and retry.
+                                throw new Exception($"Unable to upload to server. Error code {uploadResult.StatusCode}");
+
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Uploaded /{resource_type}/{id}");
+                            }
+                        },
+                            new ExecutionDataflowBlockOptions
+                            {
+                                MaxDegreeOfParallelism = _intMaxDegreeOfParallelism
+                            }
+                        );
+
+                        for (var i = 0; i < entries.Count; i++)
+                        {
+                            actionBlock.Post(i);
+                        }
+                        actionBlock.Complete();
+                        actionBlock.Completion.Wait();
+
+                        _jsonfilecount++;
+
                     }
                 }
-
-                _jsonfilecount++;
-
-                }
-
-
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e}");
+            }
+        }
 
         static private async Task SendSimulatedEventHubData()
         {
@@ -363,7 +463,7 @@ namespace HealthcareAPIsSamples.FHIRDL
 
                     // Use the producer client to send the batch of events to the event hub
                     await producerClient.SendAsync(eventBatch);
-                    
+
                     Console.WriteLine($"Event {_eventdata}");
                     Thread.Sleep(1000);
 
@@ -375,12 +475,6 @@ namespace HealthcareAPIsSamples.FHIRDL
             {
                 await producerClient.DisposeAsync();
             }
-
         }
-        
     }
-
-
 }
-
-
