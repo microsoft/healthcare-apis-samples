@@ -79,7 +79,7 @@ namespace HealthcareAPIsSamples.FHIRDL
 
         static Uri fhirServerUrl;
         static readonly HttpClient httpClient;
-        static JArray entries;
+        
 
         static async System.Threading.Tasks.Task Main(string[] args)
         {
@@ -190,7 +190,7 @@ namespace HealthcareAPIsSamples.FHIRDL
         {
             try
             {
-                entries = new JArray();
+                JArray entries = new JArray();
 
                 //reset counters
                 _intFileCount = 1;
