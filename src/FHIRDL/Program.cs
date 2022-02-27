@@ -408,7 +408,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                             }
                             else
                             {
-                                Console.WriteLine($"Uploaded /{resource_type}/{id}");
+                                //Console.WriteLine($"Uploaded /{resource_type}/{id}");
                             }
                         },
                             new ExecutionDataflowBlockOptions
