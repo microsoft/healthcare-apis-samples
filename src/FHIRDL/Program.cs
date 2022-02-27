@@ -70,7 +70,7 @@ namespace HealthcareAPIsSamples.FHIRDL
         static string _content = null;
         static string _fhirLoaderResponse = "";
 
-        static int _jsonfilecount = 1;
+        static int _intFileCount = 1;
         static int _retry = 1;
         static int _intMaxDegreeOfParallelism;
 
@@ -193,7 +193,8 @@ namespace HealthcareAPIsSamples.FHIRDL
                 entries = new JArray();
 
                 //reset counters
-                _jsonfilecount = 1;
+                _intFileCount = 1;
+                int _intResourceCount = 0;
                 _retry = 1;
                 _fhirLoaderResponse = null;
 
@@ -247,20 +248,20 @@ namespace HealthcareAPIsSamples.FHIRDL
                         continue;
 
                     //Resume loading
-                    if (_jsonfilecount < _fhirFileCountStart)
+                    if (_intFileCount < _fhirFileCountStart)
                     {
-                        _jsonfilecount++;
+                        _intFileCount++;
                         continue;
                     }
 
                     //Stop loading 
-                    if (_jsonfilecount > _fhirFileCountEnd)
+                    if (_intFileCount > _fhirFileCountEnd)
                     {
                         Console.WriteLine($"All files within the specified range {_fhirFileCountStart} - {_fhirFileCountEnd} have been processed \n");
                         return;
                     }
 
-                    Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
+                    //Console.WriteLine($"Processing file #{_jsonfilecount} {blobItem.Name}");
 
                     //// begin test only
                     //_jsonfilecount++;
@@ -380,7 +381,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
                                 .WaitAndRetryAsync(pollyDelays, (result, timeSpan, retryCount, context) =>
                                 {
-                                    Console.WriteLine($"{_jsonfilecount}: {resource_type}/{id}: Request failed with {result.Result.StatusCode}. Waiting {timeSpan} before next retry. Retry attempt {retryCount}");
+                                    Console.WriteLine($"{_intFileCount}: {resource_type}/{id}: Request failed with {result.Result.StatusCode}. Waiting {timeSpan} before next retry. Retry attempt {retryCount}");
                                 })
                                 .ExecuteAsync(() =>
                                 {
@@ -408,6 +409,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                             }
                             else
                             {
+                                _intResourceCount++;
                                 //Console.WriteLine($"Uploaded /{resource_type}/{id}");
                             }
                         },
@@ -424,7 +426,9 @@ namespace HealthcareAPIsSamples.FHIRDL
                         actionBlock.Complete();
                         actionBlock.Completion.Wait();
 
-                        _jsonfilecount++;
+                        Console.WriteLine($"Processing file #{_intFileCount} Total {entries.Count} Actual {_intResourceCount} {blobItem.Name}");
+
+                        _intFileCount++;
 
                     }
                 }
