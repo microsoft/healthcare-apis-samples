@@ -22,6 +22,7 @@ using Polly;
 using System.Threading.Tasks.Dataflow;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using System.Net;
 
 namespace HealthcareAPIsSamples.FHIRDL
 {
@@ -242,6 +243,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                 // List all blobs in the container
                 await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
                 {
+
                     //Skip json files not included by the filter
                     if (!blobItem.Name.Contains(_fhirFileFilter))
                         continue;
@@ -377,6 +379,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 TimeSpan.FromMilliseconds(8000 + randomGenerator.Next(50))
                                     };
 
+
                             HttpResponseMessage uploadResult = await Policy
                                 .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
                                 .WaitAndRetryAsync(pollyDelays, (result, timeSpan, retryCount, context) =>
@@ -387,6 +390,11 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 {
                                     //Console.WriteLine($"File#{_jsonfilecount}: {resource_type}/{id}");
 
+                                    HttpClient httpClient = new HttpClient();
+                                    //Increase concurrent connections from default 2 to 10
+                                    //https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepointmanager.defaultconnectionlimit
+                                    ServicePointManager.FindServicePoint(fhirServerUrl).ConnectionLimit = 5;
+
                                     var message = string.IsNullOrEmpty(id)
                                             ? new HttpRequestMessage(HttpMethod.Post, new Uri(fhirServerUrl, $"/{resource_type}"))
                                             : new HttpRequestMessage(HttpMethod.Put, new Uri(fhirServerUrl, $"/{resource_type}/{id}"));
@@ -394,7 +402,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                                     message.Content = content;
                                     message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accesstoken);
 
-                                    return _client.SendAsync(message);
+                                    return httpClient.SendAsync(message);
 
                                 });
 
@@ -418,6 +426,8 @@ namespace HealthcareAPIsSamples.FHIRDL
                             }
                         );
 
+                        var startTime = DateTime.Now;
+
                         for (var i = 0; i < entries.Count; i++)
                         {
                             actionBlock.Post(i);
@@ -425,7 +435,8 @@ namespace HealthcareAPIsSamples.FHIRDL
                         actionBlock.Complete();
                         actionBlock.Completion.Wait();
 
-                        Console.WriteLine($"File #{_intFileCount} Total {entries.Count}: {blobItem.Name}");
+                        var timeElapsed = DateTime.Now - startTime;
+                        Console.WriteLine($"File #{_intFileCount} Total {entries.Count} Duration(ms) {timeElapsed.Milliseconds}: {blobItem.Name}");
 
                         _intFileCount++;
 
