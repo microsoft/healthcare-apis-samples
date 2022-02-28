@@ -61,7 +61,6 @@ namespace HealthcareAPIsSamples.FHIRDL
 
         static string _accesstoken = null;
         static string _requestUrl = null;
-        static HttpClient _client = new HttpClient();
         static HttpRequestMessage _request;
         static HttpResponseMessage _response;
 
@@ -79,9 +78,8 @@ namespace HealthcareAPIsSamples.FHIRDL
         static bool menuOptionLoop = true;
 
         static Uri fhirServerUrl;
-        static readonly HttpClient httpClient;
+        static readonly HttpClient httpClient = new HttpClient();
         
-
         static async System.Threading.Tasks.Task Main(string[] args)
         {
 
@@ -115,6 +113,9 @@ namespace HealthcareAPIsSamples.FHIRDL
             _authority = _fhirlogin + "/" + _fhirtenantId;
 
             fhirServerUrl = new Uri(_fhiraudience);
+            //Increase concurrent connections from default 2 to 10
+            //https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepointmanager.defaultconnectionlimit
+            ServicePointManager.FindServicePoint(fhirServerUrl).ConnectionLimit = 5;
 
             _streventhubconnection = config["eventhubconnection"];
             _streventhubname = config["eventhubname"];
@@ -389,11 +390,6 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 .ExecuteAsync(() =>
                                 {
                                     //Console.WriteLine($"File#{_jsonfilecount}: {resource_type}/{id}");
-
-                                    HttpClient httpClient = new HttpClient();
-                                    //Increase concurrent connections from default 2 to 10
-                                    //https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepointmanager.defaultconnectionlimit
-                                    ServicePointManager.FindServicePoint(fhirServerUrl).ConnectionLimit = 5;
 
                                     var message = string.IsNullOrEmpty(id)
                                             ? new HttpRequestMessage(HttpMethod.Post, new Uri(fhirServerUrl, $"/{resource_type}"))
