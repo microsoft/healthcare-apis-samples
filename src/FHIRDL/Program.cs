@@ -23,6 +23,7 @@ using System.Threading.Tasks.Dataflow;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Net;
+using Microsoft.Health;
 
 namespace HealthcareAPIsSamples.FHIRDL
 {
@@ -242,12 +243,12 @@ namespace HealthcareAPIsSamples.FHIRDL
 
 
                 // List all blobs in the container
-                await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync())
+                await foreach (BlobItem blobItem in blobContainerClient.GetBlobsAsync(prefix : _fhirFileFilter))
                 {
 
                     //Skip json files not included by the filter
-                    if (!blobItem.Name.Contains(_fhirFileFilter))
-                        continue;
+                    //if (!blobItem.Name.Contains(_fhirFileFilter))
+                    //    continue;
 
                     //Resume loading
                     if (_intFileCount < _fhirFileCountStart)
@@ -294,17 +295,11 @@ namespace HealthcareAPIsSamples.FHIRDL
 
                     var streamReader = new StreamReader(download.Content);
                     // Read ndjson file line by line
-                    entries.Clear();
-                    while (!streamReader.EndOfStream)
-                    {
-                        // Assuming no conversion required for ndjson files
-                        var linecontent = await streamReader.ReadLineAsync();
-                        var linejobject = JObject.Parse(linecontent);
-                        entries.Add(linejobject);
-                    }
+
 
                     if (convertjson)
                     {
+
                         //read the entire json file
                         _content = await streamReader.ReadToEndAsync();
                         _fhirLoaderResponse = FHIRDLHelper.ConvertJsonFiles(_content);
@@ -332,6 +327,14 @@ namespace HealthcareAPIsSamples.FHIRDL
                     else
                     {
                         //load data to the FHIR server
+                        entries.Clear();
+                        while (!streamReader.EndOfStream)
+                        {
+                            // Assuming no conversion required for ndjson files
+                            var linecontent = await streamReader.ReadLineAsync();
+                            var linejobject = JObject.Parse(linecontent);
+                            entries.Add(linejobject);
+                        }
 
                         //Get a new token if expired
                         if (_fhirserversecurity)
@@ -389,7 +392,7 @@ namespace HealthcareAPIsSamples.FHIRDL
                                 })
                                 .ExecuteAsync(() =>
                                 {
-                                    //Console.WriteLine($"File#{_jsonfilecount}: {resource_type}/{id}");
+                                    //Console.WriteLine($"File# {resource_type} / {id}");
 
                                     var message = string.IsNullOrEmpty(id)
                                             ? new HttpRequestMessage(HttpMethod.Post, new Uri(fhirServerUrl, $"/{resource_type}"))
