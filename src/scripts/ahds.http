@@ -1,0 +1,14 @@
+deploymentname=xxx
+resourcegroupname=rg-$deploymentname
+location=centralus
+workspacename=ws$deploymentname
+fhirname=fhir$deploymentname
+dicomname=dicom$deploymentname
+medtechname=medtech$deploymentname
+bicepfilename=ahds.bicep
+subscriptionid=$(az account show --query id --output tsv)
+tenantid=$(az account show --subscription $subscriptionid --query tenantId --output tsv)
+
+az group create --name $resourcegroupname --location $location
+az deployment group create --resource-group $resourcegroupname --template-file $bicepfilename --parameters workspaceName=$workspacename fhirName=$fhirname dicomName=$dicomname medtechName=$medtechname tenantId=$tenantid location=$location
+
