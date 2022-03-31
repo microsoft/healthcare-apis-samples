@@ -2,6 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+         "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
         "appNameImporter": {
             "type": "string",
             "metadata": {
@@ -82,20 +89,21 @@
             }
         },
         "aadFHIRClientSecret": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "AAD service client secret"
             }
         }
-        },
+    },
+    "functions": [],
     "variables": {
-        "location": "[resourceGroup().location]",
         "functionAppName": "[parameters('appNameImporter')]",
         "hostingPlanName": "[parameters('appNameImporter')]",
         "applicationInsightsName": "[parameters('appNameImporter')]",
         "storageAccountName": "[replace(concat(toLower(substring(parameters('appNameImporter'), 0, min(length(parameters('appNameImporter')), 22))), 'sa'),'-','')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
-},
+
+    },
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -103,8 +111,8 @@
             "tags": {
                 "FhirServerSolution": "[parameters('solutionType')]"
             },
-            "apiVersion": "2019-06-01",
-            "location": "[variables('location')]",
+            "apiVersion": "2021-02-01",
+            "location": "[parameters('location')]",
             "kind": "StorageV2",
             "sku": {
                 "name": "[parameters('storageAccountType')]"
@@ -114,8 +122,8 @@
                             },
             "resources": [
                 {
-                  "type": "blobServices/containers",
-                  "apiVersion": "2019-06-01",
+                  "type": "containers",
+                  "apiVersion": "2021-02-01",
                   "name": "[concat('default/', parameters('containerNameImport'))]",
                   "dependsOn": [
                     "[variables('storageAccountName')]"
@@ -125,8 +133,8 @@
                   }
                 },
                 {
-                    "type": "blobServices/containers",
-                    "apiVersion": "2019-06-01",
+                    "type": "containers",
+                    "apiVersion": "2021-02-01",
                     "name": "[concat('default/', parameters('containerNameRejected'))]",
                     "dependsOn": [
                       "[variables('storageAccountName')]"
@@ -141,7 +149,7 @@
                 "type": "Microsoft.Web/serverfarms",
                 "apiVersion": "2021-02-01",
                 "name": "[variables('hostingPlanName')]",
-                "location": "[variables('location')]",
+                "location": "[parameters('location')]",
                 "sku": {
                     "name": "Y1",
                     "tier": "Dynamic"
@@ -158,7 +166,7 @@
                 "FhirServerSolution": "[parameters('solutionType')]"
             },
             "name": "[variables('functionAppName')]",  
-            "location": "[variables('location')]",
+            "location": "[parameters('location')]",
             "kind": "functionapp",
             "identity": {
                 "type": "SystemAssigned"
@@ -270,7 +278,7 @@
         "apiVersion": "2020-02-02",
         "name": "[variables('applicationInsightsName')]",
         "type": "microsoft.insights/components",
-        "location": "[variables('location')]",
+        "location": "[parameters('location')]",
         "kind": "web",
         "tags": {
             "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"},
