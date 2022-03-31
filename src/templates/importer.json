@@ -111,7 +111,7 @@
             "tags": {
                 "FhirServerSolution": "[parameters('solutionType')]"
             },
-            "apiVersion": "2021-02-01",
+            "apiVersion": "2021-08-01",
             "location": "[parameters('location')]",
             "kind": "StorageV2",
             "sku": {
@@ -119,31 +119,51 @@
             },
             "properties": {
                 "accessTier": "Hot"
-                            },
-            "resources": [
-                {
-                  "type": "containers",
-                  "apiVersion": "2021-02-01",
-                  "name": "[concat('default/', parameters('containerNameImport'))]",
-                  "dependsOn": [
-                    "[variables('storageAccountName')]"
-                  ],
-                  "properties": {
-                    "publicAccess": "None"
-                  }
+            }       
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
                 },
-                {
-                    "type": "containers",
-                    "apiVersion": "2021-02-01",
-                    "name": "[concat('default/', parameters('containerNameRejected'))]",
-                    "dependsOn": [
-                      "[variables('storageAccountName')]"
-                    ],
-                    "properties": {
-                      "publicAccess": "None"
-                    }
-                  }                  
-            ]
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default/', parameters('containerNameImport'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default/', parameters('containerNameRejected'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
         },
         {
                 "type": "Microsoft.Web/serverfarms",
