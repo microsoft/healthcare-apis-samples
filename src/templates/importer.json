@@ -95,14 +95,12 @@
             }
         }
     },
-    "functions": [],
     "variables": {
         "functionAppName": "[parameters('appNameImporter')]",
         "hostingPlanName": "[parameters('appNameImporter')]",
         "applicationInsightsName": "[parameters('appNameImporter')]",
         "storageAccountName": "[replace(concat(toLower(substring(parameters('appNameImporter'), 0, min(length(parameters('appNameImporter')), 22))), 'sa'),'-','')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
-
     },
     "resources": [
         {
@@ -132,10 +130,7 @@
                 "name": "Standard_LRS",
                 "tier": "Standard"
             },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                },
+            "properties": {                
                 "deleteRetentionPolicy": {
                     "enabled": false
                 }
@@ -225,7 +220,7 @@
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2020-02-02').InstrumentationKey]"
                         },
                         {
                             "name": "APPINSIGHTS_PORTALINFO",
