@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "2972414861180715626"
+      "templateHash": "3466933979608693797"
     }
   },
   "parameters": {
@@ -159,7 +159,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "14285179489315820270"
+              "templateHash": "8736466861034054808"
             }
           },
           "parameters": {
@@ -197,40 +197,12 @@
                 "description": "ID of the resource group for Databricks managed resources."
               }
             },
-            "force_update": {
-              "type": "string",
-              "defaultValue": "[utcNow()]"
-            },
             "identity": {
               "type": "string"
-            },
-            "adb_pat_lifetime": {
-              "type": "string",
-              "defaultValue": "3600"
             },
             "adb_secret_scope_name": {
               "type": "string",
               "defaultValue": "sample-secrets"
-            },
-            "adb_cluster_name": {
-              "type": "string",
-              "defaultValue": "test-cluster-01"
-            },
-            "adb_spark_version": {
-              "type": "string",
-              "defaultValue": "7.3.x-scala2.12"
-            },
-            "adb_node_type": {
-              "type": "string",
-              "defaultValue": "Standard_D3_v2"
-            },
-            "adb_num_worker": {
-              "type": "string",
-              "defaultValue": "3"
-            },
-            "adb_auto_terminate_min": {
-              "type": "string",
-              "defaultValue": "30"
             },
             "storageName": {
               "type": "secureString"
@@ -354,6 +326,9 @@
           },
           "tags": {
             "value": "[variables('resourceTags')]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('loganalytics-{0}', variables('name')))).outputs.loagAnalyticsId.value]"
           }
         },
         "template": {
@@ -363,7 +338,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "3690419099582015418"
+              "templateHash": "5509843374808145294"
             }
           },
           "parameters": {
@@ -382,6 +357,9 @@
             "tags": {
               "type": "object",
               "defaultValue": {}
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
             }
           },
           "variables": {
@@ -417,6 +395,38 @@
               "dependsOn": [
                 "[resourceId('Microsoft.HealthcareApis/workspaces', parameters('workspaceName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.HealthcareApis/workspaces/{0}/fhirservices/{1}', split(format('{0}/{1}', parameters('workspaceName'), parameters('fhirServiceName')), '/')[0], split(format('{0}/{1}', parameters('workspaceName'), parameters('fhirServiceName')), '/')[1])]",
+              "name": "[parameters('fhirServiceName')]",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "logs": [
+                  {
+                    "category": "AuditLogs",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.HealthcareApis/workspaces/fhirservices', split(format('{0}/{1}', parameters('workspaceName'), parameters('fhirServiceName')), '/')[0], split(format('{0}/{1}', parameters('workspaceName'), parameters('fhirServiceName')), '/')[1])]"
+              ]
             }
           ],
           "outputs": {
@@ -431,6 +441,9 @@
           }
         }
       },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('loganalytics-{0}', variables('name')))]"
+      ],
       "metadata": {
         "description": "Deploys Azure Health Data Services and FHIR Service"
       }
@@ -462,7 +475,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "4802976208277291139"
+              "templateHash": "9307007034468889206"
             }
           },
           "parameters": {
@@ -504,6 +517,9 @@
                   }
                 ],
                 "scriptContent": "[variables('$fxv#0')]"
+              },
+              "metadata": {
+                "description": "Deploymenet script to load sample Synthea data"
               }
             }
           ]
@@ -628,6 +644,89 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "[format('loganalytics-{0}', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "workspaceName": {
+            "value": "[format('{0}-logs', variables('name'))]"
+          },
+          "location": {
+            "value": "[parameters('resourceLocation')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "946397538494113314"
+            }
+          },
+          "parameters": {
+            "workspaceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics workspack name"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location to deploy the Log Analytics workspack"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Resource tags for the Log Analytics workspack"
+              }
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "PerGB2018"
+            },
+            "retentionInDays": {
+              "type": "int",
+              "defaultValue": 120,
+              "metadata": {
+                "description": "Specify the number of days to retain data."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[parameters('workspaceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "sku": {
+                  "name": "[parameters('sku')]"
+                },
+                "retentionInDays": "[parameters('retentionInDays')]"
+              }
+            }
+          ],
+          "outputs": {
+            "loagAnalyticsId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "[format('fhirtoanalyticsfunction-{0}', variables('name'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -649,6 +748,9 @@
           },
           "tags": {
             "value": "[variables('resourceTags')]"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('loganalytics-{0}', variables('name')))).outputs.loagAnalyticsId.value]"
           }
         },
         "template": {
@@ -658,7 +760,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "6434079370667253513"
+              "templateHash": "1494508608762548696"
             }
           },
           "parameters": {
@@ -690,7 +792,10 @@
             },
             "tags": {
               "type": "object",
-              "defaultValue": {}
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags for resources"
+              }
             },
             "fhirVersion": {
               "type": "string",
@@ -726,6 +831,12 @@
               "metadata": {
                 "description": "The fhir-to-synapse pipeline package url."
               }
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics workspace resource id for linking to Application Insights."
+              }
             }
           },
           "variables": {
@@ -746,6 +857,9 @@
               },
               "properties": {
                 "elasticScaleEnabled": true
+              },
+              "metadata": {
+                "description": "Hosting plan for the FHIR to Analytics pipeline"
               }
             },
             {
@@ -766,7 +880,10 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
-              ]
+              ],
+              "metadata": {
+                "description": "Function app for FHIR to Analytics pipeline"
+              }
             },
             {
               "type": "Microsoft.Web/sites/config",
@@ -825,9 +942,11 @@
               "properties": {
                 "Application_Type": "web",
                 "publicNetworkAccessForIngestion": "Enabled",
-                "publicNetworkAccessForQuery": "Enabled"
+                "publicNetworkAccessForQuery": "Enabled",
+                "IngestionMode": "LogAnalytics",
+                "WorkspaceResourceId": "[parameters('logAnalyticsWorkspaceId')]"
               },
-              "tags": "[union(parameters('tags'), createObject(format('hidden-link:{0}', resourceId('Microsoft.Web/sites', variables('appInsightsName'))), 'Resource'))]",
+              "tags": "[parameters('tags')]",
               "metadata": {
                 "description": "Monitoring for Function App"
               }
@@ -851,7 +970,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', format('databricks-workspace-{0}', variables('databricksWorkspaceName')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('datalake-{0}', variables('datalakeName')))]"
+        "[resourceId('Microsoft.Resources/deployments', format('datalake-{0}', variables('datalakeName')))]",
+        "[resourceId('Microsoft.Resources/deployments', format('loganalytics-{0}', variables('name')))]"
       ],
       "metadata": {
         "description": "Deploys FHIR to Analytics function."
@@ -921,7 +1041,7 @@
         "[resourceId('Microsoft.Resources/deployments', format('ahds-with-fhir-{0}', variables('ahdsWorkspaceName')))]"
       ],
       "metadata": {
-        "description": "Setup identity connection between FHIR and the function app"
+        "description": "Setup access between FHIR and the function app via role assignment"
       }
     },
     {
@@ -988,7 +1108,7 @@
         "[resourceId('Microsoft.Resources/deployments', 'ManagedIdentity')]"
       ],
       "metadata": {
-        "description": "Setup identity connection between FHIR and the function app"
+        "description": "Setup access between FHIR and the deployment script managed identity"
       }
     },
     {
