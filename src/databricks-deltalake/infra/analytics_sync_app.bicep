@@ -2,42 +2,37 @@
 @minLength(3)
 @maxLength(24)
 param name string
-
 @description('Location to deploy resources.')
 param location string
-
 @description('The FHIR Service endpoint to export data from.')
 param fhirServiceUrl string
-
 @description('Name of the Azure Datalake Storage Gen 2 Storage Account')
 param storageAccountName string
-
+@description('Tags for resources')
 param tags object = {}
-
 @allowed([
   'R4'
 ])
 param fhirVersion string = 'R4'
-
 @description('Start timestamp of the data range you want to export.')
 param dataStart string = '1970-01-01 00:00:00 +00:00'
-
 @description('End timestamp of the data range you want to export. Will continuous export all data if not specified.')
 param dataEnd string = ''
-
 @description('The name of the container to store job and data.')
 param containerName string = 'fhir'
-
 @description('The fhir-to-synapse pipeline package url.')
+#disable-next-line no-hardcoded-env-urls
 param packageUrl string = 'https://fhiranalyticspipeline.blob.core.windows.net/builds/Microsoft.Health.Fhir.Synapse.FunctionApp.zip'
-
+@description('Log Analytics workspace resource id for linking to Application Insights.')
 param logAnalyticsWorkspaceId string
 
+@description('Used to pull keys from existing function storage account')
 resource functionStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: storageAccountName
 }
 
 var hostingPlanName = '${name}-host'
+@description('Hosting plan for the FHIR to Analytics pipeline')
 resource functionHostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: hostingPlanName
   location: location
@@ -52,6 +47,7 @@ resource functionHostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
 }
 
 var functionAppName = '${name}-fa'
+@description('Function app for FHIR to Analytics pipeline')
 resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
   name: functionAppName
   location: location

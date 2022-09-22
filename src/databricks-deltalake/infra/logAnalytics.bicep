@@ -13,6 +13,7 @@ param retentionInDays int = 120
 resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
   name: workspaceName
   location: location
+  tags: tags
   properties: {
     sku: {
       name: sku

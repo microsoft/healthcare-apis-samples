@@ -3,6 +3,7 @@ param fhirServiceName string
 param tenantId string
 param location string
 param tags object = {}
+param logAnalyticsWorkspaceId string
 
 var loginURL = environment().authentication.loginEndpoint
 var authority = '${loginURL}${tenantId}'
@@ -36,6 +37,37 @@ resource fhir 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-01-previ
   dependsOn: [
     healthWorkspace
   ]
+}
+
+// network security group diagnostic setting
+resource fhirDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'playground-ds-01'
+  // this is where you enable diagnostic setting for the specificed security group
+  scope: fhir
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    logs: [
+      {
+        category: 'null'
+        categoryGroup: 'allLogs'
+        enabled: true
+        retentionPolicy: {
+          days: 365
+          enabled: true
+        }
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          days: 365
+          enabled: true
+        }
+      }
+    ]
+  }
 }
 
 output fhirId string = fhir.id

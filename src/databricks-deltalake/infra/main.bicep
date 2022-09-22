@@ -59,6 +59,7 @@ module fhir_template 'fhir.bicep'= {
     tenantId: subscription().tenantId
     location: resourceLocation
     tags: resourceTags
+    logAnalyticsWorkspaceId: log_analytics_template.outputs.loagAnalyticsId
   }
 }
 

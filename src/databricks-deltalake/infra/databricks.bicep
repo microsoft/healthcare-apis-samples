@@ -16,16 +16,9 @@ param tags object = {}
 
 @description('ID of the resource group for Databricks managed resources.')
 param managedResourceGroupId string
-
-param force_update string = utcNow()
 param identity string
-param adb_pat_lifetime string = '3600'
+#disable-next-line secure-secrets-in-params
 param adb_secret_scope_name string = 'sample-secrets'
-param adb_cluster_name string = 'test-cluster-01'
-param adb_spark_version string = '7.3.x-scala2.12'
-param adb_node_type string = 'Standard_D3_v2'
-param adb_num_worker string = '3'
-param adb_auto_terminate_min string = '30'
 
 @secure()
 param storageName string

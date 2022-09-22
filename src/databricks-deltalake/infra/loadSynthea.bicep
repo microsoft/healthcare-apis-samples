@@ -2,6 +2,7 @@ param fhirUrl string
 param location string
 param identity string
 
+@description('Deploymenet script to load sample Synthea data')
 resource loadSyntheaData 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'loadSyntheaData'
   location: location
