@@ -13,7 +13,7 @@
 ### Define app registration name, etc.
 appregname=myappregtest1
 clientid=$(az ad app create --display-name $appregname --query appId --output tsv)
-objectid=$(az ad app show --id $clientid --query objectId --output tsv)
+objectid=$(az ad app show --id $clientid --query id --output tsv)
 
 #Remove api permissions: disable default exposed scope first
 default_scope=$(az ad app show --id $clientid | jq '.oauth2Permissions[0].isEnabled = false' | jq -r '.oauth2Permissions')
