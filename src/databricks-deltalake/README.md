@@ -18,7 +18,7 @@ For this sample, we will be building a simple Lakehouse exploring a single use c
 
 Click the button below to launch Azure and deploy your sample. Open it in a new tab so you can keep referencing this readme.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fahdssampledata.blob.core.windows.net%2Ftemplates%2Fdata-platform%2Fdatabricks-deltalake%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/databricks-deltalake/src/databricks-deltalake/infra/azuredeploy.json)
 
 ## Looking around at what we deployed
 
