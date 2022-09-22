@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AsyncEnumerable" Version="1.0.17" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="4.5.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
