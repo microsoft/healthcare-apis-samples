@@ -41,15 +41,13 @@ resource fhir 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-01-previ
 
 // network security group diagnostic setting
 resource fhirDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'playground-ds-01'
-  // this is where you enable diagnostic setting for the specificed security group
+  name: fhirServiceName
   scope: fhir
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
       {
-        category: 'null'
-        categoryGroup: 'allLogs'
+        category: 'AuditLogs'
         enabled: true
         retentionPolicy: {
           days: 365
