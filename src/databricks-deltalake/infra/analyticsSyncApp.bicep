@@ -114,6 +114,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
     Application_Type: 'web'
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
+    IngestionMode: 'LogAnalytics'
     WorkspaceResourceId: logAnalyticsWorkspaceId
   }
   tags: tags

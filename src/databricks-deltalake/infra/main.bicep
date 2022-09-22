@@ -93,7 +93,7 @@ module log_analytics_template 'logAnalytics.bicep' = {
 }
 
 @description('Deploys FHIR to Analytics function.')
-module analytics_sync_app_template 'analytics_sync_app.bicep'= {
+module analytics_sync_app_template 'analyticsSyncApp.bicep'= {
   name: 'fhirtoanalyticsfunction-${name}'
   params: {
     name: name
