@@ -120,9 +120,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
     publicNetworkAccessForQuery: 'Enabled'
     WorkspaceResourceId: logAnalyticsWorkspaceId
   }
-  tags: union(tags, {
-      'hidden-link:${resourceId('Microsoft.Web/sites', appInsightsName)}': 'Resource'
-    })
+  tags: tags
 }
 
 output functionAppName string = functionAppName
