@@ -83,6 +83,14 @@ module datalake_template 'datalake.bicep'= {
   }
 }
 
+module log_analytics_template 'logAnalytics.bicep' = {
+  name: 'loganalytics-${name}'
+  params: {
+    workspaceName: '${name}-logs'
+    location: resourceLocation
+  }
+}
+
 @description('Deploys FHIR to Analytics function.')
 module analytics_sync_app_template 'analytics_sync_app.bicep'= {
   name: 'fhirtoanalyticsfunction-${name}'
@@ -92,13 +100,14 @@ module analytics_sync_app_template 'analytics_sync_app.bicep'= {
     fhirServiceUrl: fhirUrl
     storageAccountName: datalakeName
     tags: resourceTags
+    logAnalyticsWorkspaceId: log_analytics_template.outputs.loagAnalyticsId
   }
 
   dependsOn: [databricks_template, datalake_template]
 }
 
-@description('Setup identity connection between FHIR and the function app')
-module functionFhirIdentity './roleAssignment.bicep'= {
+@description('Setup access between FHIR and the function app via role assignment')
+module function_fhir_role_assignment_template './roleAssignment.bicep'= {
   name: 'fhirIdentity-function'
   params: {
     resourceId: fhir_template.outputs.fhirId
@@ -107,8 +116,8 @@ module functionFhirIdentity './roleAssignment.bicep'= {
   }
 }
 
-@description('Setup identity connection between FHIR and the function app')
-module deploymentScriptFhirIdentity './roleAssignment.bicep'= {
+@description('Setup access between FHIR and the deployment script managed identity')
+module deploymment_script_role_assignment_template './roleAssignment.bicep'= {
   name: 'fhirIdentity-deployment'
   params: {
     resourceId: fhir_template.outputs.fhirId

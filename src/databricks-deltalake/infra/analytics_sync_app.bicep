@@ -31,6 +31,8 @@ param containerName string = 'fhir'
 @description('The fhir-to-synapse pipeline package url.')
 param packageUrl string = 'https://fhiranalyticspipeline.blob.core.windows.net/builds/Microsoft.Health.Fhir.Synapse.FunctionApp.zip'
 
+param logAnalyticsWorkspaceId string
+
 resource functionStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: storageAccountName
 }
@@ -116,6 +118,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
     Application_Type: 'web'
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
+    WorkspaceResourceId: logAnalyticsWorkspaceId
   }
   tags: union(tags, {
       'hidden-link:${resourceId('Microsoft.Web/sites', appInsightsName)}': 'Resource'
