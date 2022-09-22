@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "3466933979608693797"
+      "templateHash": "13010975769926895055"
     }
   },
   "parameters": {
@@ -475,7 +475,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "9307007034468889206"
+              "templateHash": "1919035744766882093"
             }
           },
           "parameters": {
@@ -507,7 +507,7 @@
               },
               "properties": {
                 "azCliVersion": "2.26.0",
-                "timeout": "PT15M",
+                "timeout": "PT20M",
                 "cleanupPreference": "OnExpiration",
                 "retentionInterval": "PT1H",
                 "environmentVariables": [

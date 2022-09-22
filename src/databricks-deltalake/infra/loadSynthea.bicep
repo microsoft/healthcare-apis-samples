@@ -15,7 +15,7 @@ resource loadSyntheaData 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
   properties: {
     azCliVersion: '2.26.0'
-    timeout: 'PT15M'
+    timeout: 'PT20M'
     cleanupPreference: 'OnExpiration'
     retentionInterval: 'PT1H'
     environmentVariables: [
