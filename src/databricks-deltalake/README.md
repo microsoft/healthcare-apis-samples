@@ -16,9 +16,9 @@ For this sample, we will be building a simple Lakehouse exploring a single use c
 
 ## Deploy the sample
 
-Click the button below to launch Azure and deploy your sample. Open it in a new tab so you can keep referencing this readme.
+Click the button below to launch Azure and deploy this sample. Open it in a new tab so you can keep referencing this readme.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2Fhealthcare-apis-samples%2Fdatabricks-deltalake%2Fsrc%2Fdatabricks-deltalake%2Finfra%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2Fhealthcare-apis-samples%2Fmain%2Fsrc%2Fdatabricks-deltalake%2Finfra%2Fazuredeploy.json)
 
 
 ## Looking around at what we deployed
@@ -28,11 +28,11 @@ This sample will deploy the following components:
 - Azure Health Data Services Workspace
 - FHIR Service
 - Azure Data Lake Storage Gen 2
-- Azure Databricks
 - Azure Function with [FHIR to Data Lake Pipeline](https://github.com/microsoft/FHIR-Analytics-Pipelines/tree/main/FhirToDataLake)
 - Managed identity for deployment scripts
 - Role assignments
 - Script to setup Azure Databricks with the sample
+  - Including a [notebook](./notebooks/FHIR-To-Databricks-Delta.ipynb) to run the pipeline
 - Script to load sample data into the FHIR Service from Synthea
 
 
@@ -70,7 +70,7 @@ A medallion architecture is a data design pattern used to logically organize dat
 
 For FHIR data in our sample, the bronze layer is a copy of files extracted from FHIR with the FHIR to Data Lake Azure Function. The bronze layer is a landing zone and should be as close to the format of your source systems as possible. Once this data is moved successfully to bronze and you are confident in your Delta Lake deployment, you can begin to delete the data in this Data Lake path once it is moved to bronze.
 
-You can learn
+You can see more details about the initial copy to bronze [in this notebook](./notebooks/Creating%20a%20Patient%20Delta%20Table%20with%20Auto%20Loader.ipynb)
 
 ### Silver Layer
 
