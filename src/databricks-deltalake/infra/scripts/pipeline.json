@@ -13,7 +13,7 @@
     "libraries": [
       {
         "notebook": {
-          "path": "/Shared/FHIR-To-Databricks-Delta.py"
+          "path": "/Shared/FHIR-To-Databricks-Delta.ipynb"
         }
       }
     ],

@@ -37,8 +37,8 @@ resource databricks 'Microsoft.Databricks/workspaces@2022-04-01-preview' = {
   }
 }
 
-resource testDatabricks 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'testDatabricks'
+resource setupDatabricks 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'setupDatabricks'
   location: location
   kind: 'AzureCLI'
   identity: {
