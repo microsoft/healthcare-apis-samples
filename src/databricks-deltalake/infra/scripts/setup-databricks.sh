@@ -49,9 +49,9 @@ curl -L \
 cd -
 
 printf "\nUploading notebooks..."
-for notebook in notebooks/*.py; do
+for notebook in notebooks/*.ipynb; do
     filename=$(basename $notebook)
-    databricks workspace import --language "PYTHON" --format "SOURCE" --overwrite $notebook "/Shared/${filename}" >> $AZ_SCRIPTS_OUTPUT_PATH
+    databricks workspace import --language "PYTHON" --format "JUPYTER" --overwrite $notebook "/Shared/${filename}" >> $AZ_SCRIPTS_OUTPUT_PATH
     printf "\n Uploaded notebook $notebook"
 done
 
