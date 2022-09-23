@@ -70,6 +70,8 @@ A medallion architecture is a data design pattern used to logically organize dat
 
 For FHIR data in our sample, the bronze layer is a copy of files extracted from FHIR with the FHIR to Data Lake Azure Function. The bronze layer is a landing zone and should be as close to the format of your source systems as possible. Once this data is moved successfully to bronze and you are confident in your Delta Lake deployment, you can begin to delete the data in this Data Lake path once it is moved to bronze.
 
+You can learn
+
 ### Silver Layer
 
 The silver layer is a collection of entity based tables that are transformed from bronze into core tables that apply across your business. These are called "cleansed and conformed" tables. We recommend that you flatten the data in these tables as much as you can to simplify connecting downstream applications directly to your silver layer (like PowerBI). FHIR data is heavily nested and it's best to incur the complexity of this transformation once in your data platform. More than flattening, your silver layer should have data elements that map to your business entities. For example, you may have column for your EMPI (enterprise master patient id) that is a flattened, filtered result from the identifier element on the patient resource.
