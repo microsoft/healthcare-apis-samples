@@ -67,6 +67,7 @@ module fhir_template 'fhir.bicep'= {
 module synthea_data 'loadSynthea.bicep'= {
   name: 'load-synthea-${ahdsWorkspaceName}'
   params: {
+    name: name
     fhirUrl: fhirUrl
     location: resourceLocation
     identity: managed_identity.outputs.identityId

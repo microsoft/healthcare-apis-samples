@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "2327676103229267255"
+      "templateHash": "16704023170066461889"
     }
   },
   "parameters": {
@@ -159,7 +159,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "16660795234814539529"
+              "templateHash": "8852393209860017652"
             }
           },
           "parameters": {
@@ -245,7 +245,10 @@
               },
               "properties": {
                 "azCliVersion": "2.26.0",
-                "timeout": "PT5M",
+                "containerSettings": {
+                  "containerGroupName": "[format('{0}-deploy', parameters('workspaceName'))]"
+                },
+                "timeout": "PT10M",
                 "cleanupPreference": "OnExpiration",
                 "retentionInterval": "PT1H",
                 "environmentVariables": [
@@ -458,6 +461,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "name": {
+            "value": "[variables('name')]"
+          },
           "fhirUrl": {
             "value": "[variables('fhirUrl')]"
           },
@@ -475,10 +481,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "1919035744766882093"
+              "templateHash": "6763083033809341475"
             }
           },
           "parameters": {
+            "name": {
+              "type": "string"
+            },
             "fhirUrl": {
               "type": "string"
             },
@@ -487,6 +496,10 @@
             },
             "identity": {
               "type": "string"
+            },
+            "utcValue": {
+              "type": "string",
+              "defaultValue": "[utcNow()]"
             }
           },
           "variables": {
@@ -507,7 +520,11 @@
               },
               "properties": {
                 "azCliVersion": "2.26.0",
-                "timeout": "PT20M",
+                "forceUpdateTag": "[parameters('utcValue')]",
+                "containerSettings": {
+                  "containerGroupName": "[format('{0}-deploy', parameters('name'))]"
+                },
+                "timeout": "PT2H",
                 "cleanupPreference": "OnExpiration",
                 "retentionInterval": "PT1H",
                 "environmentVariables": [

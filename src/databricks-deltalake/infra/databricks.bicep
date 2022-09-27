@@ -49,7 +49,10 @@ resource setupDatabricks 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
   properties: {
     azCliVersion: '2.26.0'
-    timeout: 'PT5M'
+    containerSettings: {
+      containerGroupName: '${workspaceName}-deploy'
+    }
+    timeout: 'PT10M'
     cleanupPreference: 'OnExpiration'
     retentionInterval: 'PT1H'
     environmentVariables: [
