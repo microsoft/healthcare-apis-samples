@@ -71,6 +71,7 @@ module synthea_data 'loadSynthea.bicep'= {
     fhirUrl: fhirUrl
     location: resourceLocation
     identity: managed_identity.outputs.identityId
+    storageName: datalakeName
   }
   dependsOn: [fhir_template]
 }

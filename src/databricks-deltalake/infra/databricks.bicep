@@ -20,7 +20,6 @@ param identity string
 #disable-next-line secure-secrets-in-params
 param adb_secret_scope_name string = 'sample-secrets'
 
-@secure()
 param storageName string
 param storageContainerName string = 'fhir'
 
@@ -37,6 +36,11 @@ resource databricks 'Microsoft.Databricks/workspaces@2022-04-01-preview' = {
   }
 }
 
+@description('Used to pull keys from existing deployment storage account')
+resource deployStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+  name: storageName
+}
+
 resource setupDatabricks 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'setupDatabricks'
   location: location
@@ -50,7 +54,11 @@ resource setupDatabricks 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     azCliVersion: '2.26.0'
     containerSettings: {
-      containerGroupName: '${workspaceName}-deploy'
+      containerGroupName: 'setupDatabricks-${workspaceName}-ci'
+    }
+    storageAccountSettings: {
+      storageAccountName: deployStorageAccount.name
+      storageAccountKey: listKeys(deployStorageAccount.id, '2019-06-01').keys[0].value
     }
     timeout: 'PT10M'
     cleanupPreference: 'OnExpiration'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "16704023170066461889"
+      "templateHash": "11669071260106940001"
     }
   },
   "parameters": {
@@ -159,7 +159,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "8852393209860017652"
+              "templateHash": "1554290570023698522"
             }
           },
           "parameters": {
@@ -205,7 +205,7 @@
               "defaultValue": "sample-secrets"
             },
             "storageName": {
-              "type": "secureString"
+              "type": "string"
             },
             "storageContainerName": {
               "type": "string",
@@ -246,7 +246,11 @@
               "properties": {
                 "azCliVersion": "2.26.0",
                 "containerSettings": {
-                  "containerGroupName": "[format('{0}-deploy', parameters('workspaceName'))]"
+                  "containerGroupName": "[format('setupDatabricks-{0}-ci', parameters('workspaceName'))]"
+                },
+                "storageAccountSettings": {
+                  "storageAccountName": "[parameters('storageName')]",
+                  "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2019-06-01').keys[0].value]"
                 },
                 "timeout": "PT10M",
                 "cleanupPreference": "OnExpiration",
@@ -472,6 +476,9 @@
           },
           "identity": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'ManagedIdentity')).outputs.identityId.value]"
+          },
+          "storageName": {
+            "value": "[variables('datalakeName')]"
           }
         },
         "template": {
@@ -481,7 +488,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "6763083033809341475"
+              "templateHash": "16770650180247067614"
             }
           },
           "parameters": {
@@ -495,6 +502,9 @@
               "type": "string"
             },
             "identity": {
+              "type": "string"
+            },
+            "storageName": {
               "type": "string"
             },
             "utcValue": {
@@ -522,7 +532,11 @@
                 "azCliVersion": "2.26.0",
                 "forceUpdateTag": "[parameters('utcValue')]",
                 "containerSettings": {
-                  "containerGroupName": "[format('{0}-deploy', parameters('name'))]"
+                  "containerGroupName": "[format('loadSyntheaData-{0}-ci', parameters('name'))]"
+                },
+                "storageAccountSettings": {
+                  "storageAccountName": "[parameters('storageName')]",
+                  "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2019-06-01').keys[0].value]"
                 },
                 "timeout": "PT2H",
                 "cleanupPreference": "OnExpiration",
