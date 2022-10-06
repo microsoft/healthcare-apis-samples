@@ -40,7 +40,7 @@ resource fhir 'Microsoft.HealthcareApis/workspaces/fhirservices@2021-06-01-previ
 }
 
 // network security group diagnostic setting
-resource fhirDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource fhirDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (length(logAnalyticsWorkspaceId) > 0) {
   name: fhirServiceName
   scope: fhir
   properties: {

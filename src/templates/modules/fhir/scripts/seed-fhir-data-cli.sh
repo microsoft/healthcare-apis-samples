@@ -20,4 +20,4 @@ wget https://github.com/microsoft/fhir-loader/releases/download/v1.0.0/FhirLoade
 unzip FhirLoader.Tool.0.9.0.nupkg
 
 # Load Data
-dotnet tools/net6.0/any/FhirLoader.Tool.dll --blob "https://ahdssampledata.blob.core.windows.net/fhir/synthea-ndjson-100/" --fhir "$FHIR_URL"
+dotnet tools/net6.0/any/FhirLoader.Tool.dll --blob "$SEED_DATA_PATH" --fhir "$FHIR_URL"

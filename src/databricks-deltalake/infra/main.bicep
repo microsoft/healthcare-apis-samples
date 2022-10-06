@@ -27,7 +27,7 @@ resource managedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' ex
 }
 
 @description('Creates the managed identity needed for deployment screpts')
-module managed_identity 'managedIdentity.bicep' = {
+module managed_identity '../../templates/shared/managedIdentity.bicep' = {
   name: 'ManagedIdentity'
   params: {
     managedIdentityName: managedIdentityName
@@ -51,7 +51,7 @@ module databricks_template 'databricks.bicep'= {
 }
 
 @description('Deploys Azure Health Data Services and FHIR Service')
-module fhir_template 'fhir.bicep'= {
+module fhir_template '../../templates/shared/fhir.bicep'= {
   name: 'ahds-with-fhir-${ahdsWorkspaceName}'
   params: {
     workspaceName: ahdsWorkspaceName
@@ -63,21 +63,10 @@ module fhir_template 'fhir.bicep'= {
   }
 }
 
-@description('Deploys Azure Health Data Services and FHIR Service')
-module synthea_data 'loadSynthea.bicep'= {
-  name: 'load-synthea-${ahdsWorkspaceName}'
-  params: {
-    name: name
-    fhirUrl: fhirUrl
-    location: resourceLocation
-    identity: managed_identity.outputs.identityId
-    storageName: datalakeName
-  }
-  dependsOn: [fhir_template]
-}
+
 
 @description('Deploys an Azure Data Lake Gen 2 for data pipeline')
-module datalake_template 'datalake.bicep'= {
+module datalake_template '../../templates/shared/datalake.bicep'= {
   name: 'datalake-${datalakeName}'
   params: {
     name: datalakeName
@@ -86,7 +75,7 @@ module datalake_template 'datalake.bicep'= {
   }
 }
 
-module log_analytics_template 'logAnalytics.bicep' = {
+module log_analytics_template '../../templates/shared/logAnalytics.bicep' = {
   name: 'loganalytics-${name}'
   params: {
     workspaceName: '${name}-logs'
@@ -95,7 +84,7 @@ module log_analytics_template 'logAnalytics.bicep' = {
 }
 
 @description('Deploys FHIR to Analytics function.')
-module analytics_sync_app_template 'analyticsSyncApp.bicep'= {
+module analytics_sync_app_template '../../templates/shared/analyticsSyncApp.bicep'= {
   name: 'fhirtoanalyticsfunction-${name}'
   params: {
     name: name
@@ -110,7 +99,7 @@ module analytics_sync_app_template 'analyticsSyncApp.bicep'= {
 }
 
 @description('Setup access between FHIR and the function app via role assignment')
-module function_fhir_role_assignment_template './roleAssignment.bicep'= {
+module function_fhir_role_assignment_template '../../templates/shared/roleAssignment.bicep'= {
   name: 'fhirIdentity-function'
   params: {
     resourceId: fhir_template.outputs.fhirId
@@ -119,18 +108,8 @@ module function_fhir_role_assignment_template './roleAssignment.bicep'= {
   }
 }
 
-@description('Setup access between FHIR and the deployment script managed identity')
-module deploymment_script_role_assignment_template './roleAssignment.bicep'= {
-  name: 'fhirIdentity-deployment'
-  params: {
-    resourceId: fhir_template.outputs.fhirId
-    roleId: '5a1fc7df-4bf1-4951-a576-89034ee01acd'
-    principalId: managed_identity.outputs.identityPrincipalId
-  }
-}
-
 @description('Setup identity connection between FHIR and the function app')
-module functionStorageIdentity './roleAssignment.bicep'= {
+module functionStorageIdentity '../../templates/shared/roleAssignment.bicep'= {
   name: 'storageIdentity-function'
   params: {
     resourceId: datalake_template.outputs.storage_account_id

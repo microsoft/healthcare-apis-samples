@@ -1,8 +1,10 @@
 param name string
 param fhirUrl string
+param fhirId string
 param location string
 param identity string
 param storageName string
+param seedDataPath string = 'https://ahdssampledata.blob.core.windows.net/fhir/synthea-ndjson-100/'
 
 param utcValue string = utcNow()
 
@@ -11,9 +13,9 @@ resource deployStorageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' exi
   name: storageName
 }
 
-@description('Deploymenet script to load sample Synthea data')
-resource loadSyntheaData 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'loadSyntheaData'
+@description('Deploymenet script to load sample data with the Fhir Loader CLI')
+resource seedFhirDataCli 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'seedFhirDataCli'
   location: location
   kind: 'AzureCLI'
   identity: {
@@ -26,7 +28,7 @@ resource loadSyntheaData 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     azCliVersion: '2.26.0'
     forceUpdateTag: utcValue
     containerSettings: {
-      containerGroupName: 'loadSyntheaData-${name}-ci'
+      containerGroupName: 'seedFhirDataCli-${name}-ci'
     }
     storageAccountSettings: {
       storageAccountName: deployStorageAccount.name
@@ -40,7 +42,11 @@ resource loadSyntheaData 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         name: 'FHIR_URL'
         value: fhirUrl
       }
+      {
+        name: 'SEED_DATA_PATH'
+        value: seedDataPath
+      }
     ]
-    scriptContent: loadTextContent('scripts/load-synthea-data.sh')
+    scriptContent: loadTextContent('scripts/seed-fhir-data-cli.sh')
   }
 }
