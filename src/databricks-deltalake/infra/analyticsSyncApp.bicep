@@ -22,7 +22,7 @@ param dataEnd string = ''
 param containerName string = 'fhir'
 @description('The fhir-to-synapse pipeline package url.')
 #disable-next-line no-hardcoded-env-urls
-param packageUrl string = 'https://fhiranalyticspipeline.blob.core.windows.net/builds/Microsoft.Health.Fhir.Synapse.FunctionApp.zip'
+param packageUrl string = 'https://github.com/microsoft/FHIR-Analytics-Pipelines/releases/latest/download/Microsoft.Health.Fhir.Synapse.FunctionApp.zip'
 @description('Log Analytics workspace resource id for linking to Application Insights.')
 param logAnalyticsWorkspaceId string
 
