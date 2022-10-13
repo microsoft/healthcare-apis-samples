@@ -1,6 +1,6 @@
 param name string
-param ahdsWorkspaceName string
-param fhirName string
+param workspaceName string
+param fhirServiceName string
 param tenantId string = subscription().tenantId
 param resourceLocation string
 param resourceTags object
@@ -13,14 +13,14 @@ param seedWithData bool = false
 ])
 param seedMethod string = '$import'
 
-param attachedStorageAccountName string = '${ahdsWorkspaceName}stor'
+param attachedStorageAccountName string = '${workspaceName}stor'
 
 @description('Deploys Azure Health Data Services and FHIR Service')
 module fhir 'fhir.bicep'= {
-  name: 'ahds-with-fhir-${ahdsWorkspaceName}'
+  name: 'ahds-with-fhir-${workspaceName}'
   params: {
-    workspaceName: ahdsWorkspaceName
-    fhirServiceName: fhirName
+    workspaceName: workspaceName
+    fhirServiceName: fhirServiceName
     tenantId: tenantId
     location: resourceLocation
     tags: resourceTags
@@ -40,7 +40,7 @@ module managed_identity './managedIdentity.bicep' = if (seedWithData) {
 }
 
 @description('Setup access between FHIR and the deployment script managed identity')
-module deploymment_script_role_assignment_template '../..//shared/roleAssignment.bicep'= {
+module deploymment_script_role_assignment_template '../roleAssignment.bicep'= {
   name: 'fhirIdentity-deployment'
   params: {
     resourceId: fhir.outputs.fhirId

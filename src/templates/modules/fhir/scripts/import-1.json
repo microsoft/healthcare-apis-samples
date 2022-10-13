@@ -1,0 +1,285 @@
+{
+    "resourceType": "Parameters",
+    "parameter": [
+        {
+            "name": "inputFormat",
+            "valueString": "application/fhir+ndjson"
+        },
+        {
+            "name": "mode",
+            "valueString": "InitialLoad"
+        }
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "AllergyIntolerance"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/AllergyIntolerance.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "CarePlan"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/CarePlan.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "CareTeam"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/CareTeam.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Condition"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Condition.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Device"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Device.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "DiagnosticReport"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/DiagnosticReport.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "DocumentReference"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/DocumentReference.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Encounter"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Encounter.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "ImagingStudy"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/ImagingStudy.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Immunization"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Immunization.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Location.1665006054945"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Location.1665006054945.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Medication"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Medication.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "MedicationAdministration"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/MedicationAdministration.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "MedicationRequest"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/MedicationRequest.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Organization.1665006054945"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Organization.1665006054945.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Patient"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Patient.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Practitioner.1665006054945"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Practitioner.1665006054945.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "PractitionerRole.1665006054945"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/PractitionerRole.1665006054945.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Procedure"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Procedure.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "Provenance"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/Provenance.ndjson"
+    }
+  ]
+}
+,{
+  "name": "input",
+  "part": [
+    {
+      "name": "type",
+      "valueString": "SupplyDelivery"
+    },
+    {
+      "name": "url",
+      "valueUri": "https://appliedfhirgeneral.blob.core.windows.net/import/synthea-1000000-uscore-ndjson/SupplyDelivery.ndjson"
+    }
+  ]
+}
+]}
