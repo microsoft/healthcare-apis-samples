@@ -1,16 +1,18 @@
 #/bin/bash -e
 
-STORAGE_ACCOUNT_NAME=appliedfhirgeneral
+STORAGE_ACCOUNT_NAME=syntheahedistest2
 STORAGE_CONTAINER_NAME=import
-STORAGE_PREFIX=synthea-1000000-uscore-ndjson
+STORAGE_PREFIX=
 
 SUBSCRIPTION_ID=17af5f40-c564-4afe-ada0-fe7193bd474a
-RESOURCE_GROUP_NAME=mikaelw-applied-team
+RESOURCE_GROUP_NAME=applied-team-shared
 WORKSPACE_NAME=applied
-FHIR_SERVICE_NAME=general2
+FHIR_SERVICE_NAME=synthea-hedis-test2
 
+# Enables import on the FHIR Service
 function enable_import() {
-    CURRENT_FHIR_SERVICE=`az rest --method get --uri "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.HealthcareApis/workspaces/${WORKSPACE_NAME}/fhirservices/${FHIR_SERVICE_NAME}?api-version=2022-01-31-preview"`
+    FHIR_MANAGEMENT_URL="https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.HealthcareApis/workspaces/${WORKSPACE_NAME}/fhirservices/${FHIR_SERVICE_NAME}?api-version=2022-01-31-preview"
+    CURRENT_FHIR_SERVICE=`az rest --method get --uri "$FHIR_MANAGEMENT_URL"`
 
     FHIR_SERVICE_WITH_IMPORT=`echo $CURRENT_FHIR_SERVICE | jq \
         --arg storageAccountName "$STORAGE_ACCOUNT_NAME" \
@@ -20,8 +22,33 @@ function enable_import() {
         | del(.etag)'`
 
     az rest --method put \
-        --uri "https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.HealthcareApis/workspaces/${WORKSPACE_NAME}/fhirservices/${FHIR_SERVICE_NAME}?api-version=2022-01-31-preview" \
+        --uri "$FHIR_MANAGEMENT_URL" \
         --body "$FHIR_SERVICE_WITH_IMPORT"
+}
+
+function disable_import() {
+    FHIR_MANAGEMENT_URL="https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.HealthcareApis/workspaces/${WORKSPACE_NAME}/fhirservices/${FHIR_SERVICE_NAME}?api-version=2022-01-31-preview"
+    CURRENT_FHIR_SERVICE=`az rest --method get --uri "$FHIR_MANAGEMENT_URL"`
+
+    FHIR_SERVICE_WITH_IMPORT=`echo $CURRENT_FHIR_SERVICE | jq \
+        --arg storageAccountName "$STORAGE_ACCOUNT_NAME" \
+        '.properties.importConfiguration.enabled |= false
+        | .properties.importConfiguration.initialImportMode |= false
+        | .properties.importConfiguration.integrationDataStore |= $storageAccountName
+        | del(.etag)'`
+
+    az rest --method put \
+        --uri "$FHIR_MANAGEMENT_URL" \
+        --body "$FHIR_SERVICE_WITH_IMPORT"
+}
+
+# Checks the current status of import on the FHIR Service
+function check_status() {
+    FHIR_MANAGEMENT_URL="https://management.azure.com/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.HealthcareApis/workspaces/${WORKSPACE_NAME}/fhirservices/${FHIR_SERVICE_NAME}?api-version=2022-01-31-preview"
+    CURRENT_FHIR_SERVICE=`az rest --method get --uri "$FHIR_MANAGEMENT_URL"`
+    CURRENT_STATUS=`echo "$CURRENT_FHIR_SERVICE" | jq -r '.properties.provisioningState'`
+
+    echo $CURRENT_STATUS
 }
 
 IMPORT_BLOBS=
@@ -30,7 +57,7 @@ function get_import_files()
 {
     echo "Searching storage account ${STORAGE_ACCOUNT_NAME}, container ${STORAGE_CONTAINER_NAME}, with prefix ${STORAGE_PREFIX} for ndjson files to import..."
     
-    IMPORT_BLOBS=`az storage blob list --account-name "$STORAGE_ACCOUNT_NAME" --container-name "$STORAGE_CONTAINER_NAME" --prefix "$STORAGE_PREFIX" --num-results "*" --query "[?ends_with(name, '.ndjson')].name" --only-show-errors --output tsv`
+    IMPORT_BLOBS=`az storage blob list --account-name "$STORAGE_ACCOUNT_NAME" --container-name "$STORAGE_CONTAINER_NAME" --num-results "*" --query "[?ends_with(name, '.ndjson')].name" --only-show-errors --output tsv`
 
     NUM_IMPORT_BLOBS=`echo "$IMPORT_BLOBS" | wc -l`
 }
@@ -73,7 +100,7 @@ EOM
         if [[ $name == *by ]]; then
             continue
         fi
-        RESOURCE_TYPE=`basename -s ".ndjson" "$FILE_PATH"`
+        RESOURCE_TYPE=`echo $FILE_PATH | cut -d. -f1`
         FILE_URL=https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${STORAGE_CONTAINER_NAME}/${FILE_PATH}
 
         #THIS_IMPORT_PARAMETER=`echo ${IMPORT_PARAMETER_TEMPLATE} | jq ''`
@@ -90,11 +117,12 @@ EOM
 
     cat $FILE_NAME
 
-    #az rest --method post \
-    #    --url "https://${WORKSPACE_NAME}-${FHIR_SERVICE_NAME}.fhir.azurehealthcareapis.com/$import" \
-    #    --resource "https://${WORKSPACE_NAME}-${FHIR_SERVICE_NAME}.fhir.azurehealthcareapis.com" \
-    #    --headers "Prefer=respond-async" "Content-Type=application/fhir+json" \
-    #    --body "@${FILE_NAME}"
+    TOKEN=`az account get-access-token --resource "https://${WORKSPACE_NAME}-${FHIR_SERVICE_NAME}.fhir.azurehealthcareapis.com" | jq .accessToken --raw-output`
+
+    curl -v -d "@${FILE_NAME}" "https://${WORKSPACE_NAME}-${FHIR_SERVICE_NAME}.fhir.azurehealthcareapis.com/\$import" \
+        -H "Prefer: respond-async" \
+        -H "Content-Type: application/fhir+json" \
+        -H "Authorization: Bearer ${TOKEN}"
 }
 
 echo "Enabling import..."
