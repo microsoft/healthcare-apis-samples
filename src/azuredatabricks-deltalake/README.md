@@ -56,7 +56,7 @@ Delta Live Tables is a framework for building reliable, maintainable, and testab
 
 Auto Loader simplifies connecting the output of the FHIR To Data Lake pipeline to our Delta Lake in Azure Databricks. We can simply point Auto Loader at the output from the FHIR Service and it will *automatically* watch the directory for new files and automatically process these for streaming pipelines or keep track of what needs to be processed for on-demand pipelines.
 
-![Auto Loader with FHIR Data](./docs/patient-with-autolaoder.png)
+![Auto Loader with FHIR Data](./docs/patient-with-autoloader.png)
 
 ### Medallion Architecture
 
