@@ -45,9 +45,9 @@ printf "\n Secret adls-access-client-id created"
 printf "\nStaging notebooks..."
 mkdir -p notebooks && cd notebooks
 curl -L \
-    -O "https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/main/src/databricks-deltalake/notebooks/Creating-a-Patient-Delta-Table-with-Auto-Loader.ipynb"
+    -O "https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/main/src/azuredatabricks-deltalake/notebooks/Creating-a-Patient-Delta-Table-with-Auto-Loader.ipynb"
 curl -L \
-    -O "https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/main/src/databricks-deltalake/notebooks/FHIR-To-Databricks-Delta.ipynb"
+    -O "https://raw.githubusercontent.com/microsoft/healthcare-apis-samples/main/src/azuredatabricks-deltalake/notebooks/FHIR-To-Databricks-Delta.ipynb"
 cd -
 
 printf "\nUploading notebooks..."
