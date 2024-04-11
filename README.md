@@ -1,3 +1,6 @@
+> [!WARNING]  
+> Thank you for your interest in our repository. As of April 10, 2024, this repository is no longer being developed or maintained. We recommend that you use the new [Azure Health Data and AI Samples Repo](https://github.com/Azure-Samples/azure-health-data-and-ai-samples).
+
 # Healthcare APIs Samples
 
 This repo contains samples for Healthcare APIs, including FHIR, DICOM, IoT Connector and data related services. The workspace is a top level logical container that is created first within a resource group.
