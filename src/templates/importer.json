@@ -2,6 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+         "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
         "appNameImporter": {
             "type": "string",
             "metadata": {
@@ -82,20 +89,19 @@
             }
         },
         "aadFHIRClientSecret": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "AAD service client secret"
             }
         }
-        },
+    },
     "variables": {
-        "location": "[resourceGroup().location]",
         "functionAppName": "[parameters('appNameImporter')]",
         "hostingPlanName": "[parameters('appNameImporter')]",
         "applicationInsightsName": "[parameters('appNameImporter')]",
         "storageAccountName": "[replace(concat(toLower(substring(parameters('appNameImporter'), 0, min(length(parameters('appNameImporter')), 22))), 'sa'),'-','')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
-},
+    },
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -103,45 +109,62 @@
             "tags": {
                 "FhirServerSolution": "[parameters('solutionType')]"
             },
-            "apiVersion": "2019-06-01",
-            "location": "[variables('location')]",
+            "apiVersion": "2021-08-01",
+            "location": "[parameters('location')]",
             "kind": "StorageV2",
             "sku": {
                 "name": "[parameters('storageAccountType')]"
             },
             "properties": {
                 "accessTier": "Hot"
-                            },
-            "resources": [
-                {
-                  "type": "blobServices/containers",
-                  "apiVersion": "2019-06-01",
-                  "name": "[concat('default/', parameters('containerNameImport'))]",
-                  "dependsOn": [
-                    "[variables('storageAccountName')]"
-                  ],
-                  "properties": {
-                    "publicAccess": "None"
-                  }
-                },
-                {
-                    "type": "blobServices/containers",
-                    "apiVersion": "2019-06-01",
-                    "name": "[concat('default/', parameters('containerNameRejected'))]",
-                    "dependsOn": [
-                      "[variables('storageAccountName')]"
-                    ],
-                    "properties": {
-                      "publicAccess": "None"
-                    }
-                  }                  
-            ]
+            }       
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {                
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default/', parameters('containerNameImport'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-08-01",
+            "name": "[concat(variables('storageAccountName'), '/default/', parameters('containerNameRejected'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
         },
         {
                 "type": "Microsoft.Web/serverfarms",
                 "apiVersion": "2021-02-01",
                 "name": "[variables('hostingPlanName')]",
-                "location": "[variables('location')]",
+                "location": "[parameters('location')]",
                 "sku": {
                     "name": "Y1",
                     "tier": "Dynamic"
@@ -158,14 +181,15 @@
                 "FhirServerSolution": "[parameters('solutionType')]"
             },
             "name": "[variables('functionAppName')]",  
-            "location": "[variables('location')]",
+            "location": "[parameters('location')]",
             "kind": "functionapp",
             "identity": {
                 "type": "SystemAssigned"
                         },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('microsoft.insights/components', variables('applicationInsightsName'))]"
             ],
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
@@ -197,7 +221,7 @@
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2020-02-02').InstrumentationKey]"
                         },
                         {
                             "name": "APPINSIGHTS_PORTALINFO",
@@ -270,7 +294,7 @@
         "apiVersion": "2020-02-02",
         "name": "[variables('applicationInsightsName')]",
         "type": "microsoft.insights/components",
-        "location": "[variables('location')]",
+        "location": "[parameters('location')]",
         "kind": "web",
         "tags": {
             "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"},
