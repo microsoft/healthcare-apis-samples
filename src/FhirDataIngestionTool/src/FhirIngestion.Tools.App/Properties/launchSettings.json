@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FhirIngestion.Tools.App": {
+      "commandName": "Project",
+      "commandLineArgs": "-c c:\\temp\\fhirconfig.json"
+    }
+  }
+}
